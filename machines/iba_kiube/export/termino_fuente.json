@@ -1,0 +1,18 @@
+{
+ "contrato": "cyclotron-sim/termino_fuente@1",
+ "fabricante": "IBA",
+ "modelo": "Cyclone KIUBE",
+ "energia_MeV": {"v": 18.0, "fuente": "MID_55672 SRG Rev G tabla 5"},
+ "energia_variable": {"puertos": [3, 7], "rango_MeV": [13, 17], "fuente": "VE24 / params.yaml extraction.ve_energy_MeV"},
+ "versiones_corriente_max_uA": {"KIUBE 100": 100, "KIUBE 150": 150, "KIUBE 180": 180, "KIUBE 300": 300},
+ "doble_haz": {"puertos_opuestos": true, "corriente_total_igual_a_max": true, "fuente": "SRG §2.1.8.2"},
+ "puertos": 8,
+ "blancos_F18": ["T1", "T5"],
+ "rendimiento_neutrones_n_p": {"18O(p,n)": {"v": 6.9e-3, "fuente": "SRG §2.1.8.4"}, "BON21_modelo": 4.93e-3},
+ "rendimiento_gamma_g_p": {"v": 8.3e-3, "fuente": "SRG §2.1.8.5"},
+ "espectro_neutrones": "machines/iba_kiube/data/h2o18_spectrum_bon21.json",
+ "tasa_1m_uSv_h": {"doble 2x150 frente": 1.8e8, "doble 2x150 90 grados": 4.1e7, "fuente": "SRG tabla 8"},
+ "masa_t": {"v": 18.0, "apoyos": 4, "huella_apoyo_mm": [220, 220], "fuente": "SRG tabla 4"},
+ "puertas_blindadas_blanco": {"opcional": true, "puertos_max": 4, "reduccion_flujo_hasta": 10, "fuente": "SRG §2.1.8.8"},
+ "validacion_mc": {"fase": "F90", "IBA_sobre_MC_tabla9": [0.52, 0.62, 0.72], "MC_sobre_IBA_tabla8_1m": 0.79}
+}
