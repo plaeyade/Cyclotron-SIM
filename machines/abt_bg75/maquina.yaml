@@ -1,0 +1,5 @@
+fabricante: ABT Molecular Imaging
+modelo: "BG-75 (7.5 MeV, autoblindado)"
+estado: pendiente_fuente
+nota: "Hay trabajo previo (informe maestro BG-75/B-100) para integrar."
+fuentes_necesarias: [manual de sitio, datos de autoblindaje, rendimientos, tasas de dosis exteriores]

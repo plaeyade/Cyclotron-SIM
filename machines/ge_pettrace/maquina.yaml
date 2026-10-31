@@ -1,0 +1,4 @@
+fabricante: GE HealthCare
+modelo: "PETtrace 800 / 880 (pendiente de definir versión)"
+estado: pendiente_fuente
+fuentes_necesarias: [site planning guide, ficha técnica, plano de puertos, rendimientos de blancos, reporte de blindaje del fabricante]

@@ -1,0 +1,323 @@
+# Cyclone KIUBE 18 MeV — parámetros del modelo paramétrico  (v0.6)
+# Unidades: mm, grados, T, MeV.  Origen: centro de máquina, plano medio z = 0.
+# Fuentes:
+#   TUP03  Kleeven et al., Cyclotrons2016 — extracción
+#   TUP04  Zaremba et al., Cyclotrons2016 — imán (texto)
+#   T04F1  TUP04 Fig.1 (circuito magnético A–F, proporciones)
+#   T04F2  TUP04 Fig.2 (planta a escala: 937 px = 1740 mm, ±3 mm)   ← MEDIDO
+#   T04F3  TUP04 Fig.3 (polo, ranura e inserto)
+#   T04F8  TUP04 Fig.8 (RF = 40.646 MHz)
+#   TUD03  Nactergal et al., Cyclotrons2016 — desarrollo
+#   S09    Van de Walle et al., ICAP2018 SUPAG09 Fig.1 (mapa de campo medido + foto)
+#   BON21  Bonvin et al., ARI 168 (2021) — bobinas/blancos Cyclone 18/9
+#   PAT    Patente IBA borde de colina (arco descentrado, Rh ≤ 0.85·Lh) = US9961757 (EP3244708, prior. EP16169490)
+#   PAT16  Familia de 4 patentes IBA (prior. 13-05-2016): US9907153 ciclotrón compacto (Gv 200–250 mm reiv. 19, 2Ra/La ≥ 70 %),
+#          US10064264 inserto de polo, US10278277 corrector de gradiente. Solo rangos; sin potencia ni NI (validation/patentes_iba.py)
+#   CALC   Derivado por cálculo de datos publicados
+#   DS     Ficha técnica IBA Cyclone KIUBE V6 (ago-2026) y versión anterior (doc. del usuario)
+#   DSR    Medido/estimado sobre las renders oficiales de la ficha (proporciones, ±10 %)
+#   VE24   do Carmo et al., Instruments 8 (2024) 38 — energía variable; Fig.1 planta, Fig.3 trayectorias 13/18 MeV (digitalizadas)
+#   KEY22  Nuttens et al., Cyclotrons2022 WEAO03 — Cyclone KEY; Fig.3 <B> y flutter del KIUBE (digitalizados)
+#   IPAC26 Herrod et al., IPAC2026 MOP7178 — masas del imán (14 t acero, 2 t Cu) y potencia 19 kW
+#   CERN-CH Chiggiato, "Outgassing properties of vacuum materials for particle accelerators", CAS 2017, arXiv:2006.07124
+#   IKON   van der Kraaij et al., Cyclotrons2022 MOBO01 (Cyclone IKON, "hermano mayor" del KIUBE)
+#   CERN-CH Chiggiato, Outgassing properties of vacuum materials for particle accelerators, CAS 2017, arXiv:2006.07124
+#   CERN-IS Chiggiato, Vacuum technology for ion sources, CAS 2012 (CERN-2013-007), arXiv:1404.0960
+#   F7     Medido en la foto VE24 p.7 (escala: altura del yugo), ±20 %
+#   RPOS   Radiopharma-OS (plano del búnker del proyecto)
+#   SRG    IBA «Cyclone KIUBE Site Requirement Guide» MID 55672 Rev. G (2023) + planos SRG-0xxx anexos.
+#          Documento del usuario, con derechos de uso. Modelo de uso personal: sin restricción de datos.
+#   CBR    Folleto IBA «Cyclone KIUBE – Max potential, max capacity» (jul-2017), público
+#   PROP   Cotización presupuestaria IBA Ref. 2025/8499 v02.01 (Hospitales Zumaya, Villahermosa).
+#          Documento del usuario, con derechos de uso. Se usa la configuración técnica (precios no relevantes para el modelo).
+#   JUAS22 van der Kraaij (IBA), «Accelerators for Medicine and Industry», JUAS 2022 (público): tabla Cyclone 18P = KIUBE
+#          (p.68/157) y fotos del diseño de valle profundo C18/9 (p.44–45: dees + dummy dees a tierra, gap chimenea–puller ≈ 1.5 mm)
+#   CY11   Nuttens et al. (IBA), «Design of IBA Cyclone 11 cyclotron magnet», Cyclotrons 2010 MOPCP072 (TOSCA; +160 G/10 A a 186 A;
+#          relleno de valle 50/100 mm → +180/+450 G, flutter < 5 %; carrusel diseño C18/9: horquilla 25 mm, 2 láminas, 8 azimuts)
+#   TUD03T Nactergal (IBA), presentación oral TUD03 de Cyclotrons 2016 (16 diap.): imán < 11 kW, mapa Opera de la región central,
+#          4 × VHS-6 y bombeo medido, vacío base 2.7e-7 mbar, transmisiones; patentes EP16169489/-90/-94/-97
+#   KIR30  Jung et al. (KIRAMS), EPAC2006 TUPCH137: RF del KIRAMS-30 (modelo de línea de transmisión + CST; validación del método)
+#   VUB24  Covens (VUB-UZ Brussel), «Target shielding in a PET-production facility», FANC 16-10-2024: KIUBE desde 2017, blancos cónicos
+#          Nirta 2XL/3XL, puertas HDPE 18 cm, activación del hormigón medida (Eu-152, Co-60) y calculada por IBA
+#   CON13  Devillet et al. (IBA), Cyclotrons2013 WEPSH043: blancos cónicos de Nb (2.4/3.4/5/7 ml), ventana Havar 35 µm
+#   RGSR   Reglamento General de Seguridad Radiológica (México, 1988): público 5 mSv/año (Art. 37), 1 mSv/año prolongado (Art. 38)
+#   NCRP151 NCRP Report 151, factores de ocupación (T = 1/40 ocupación mínima)
+#   AUT15  wep09 ICAP2015, imán de ciclotrón 18 MeV con TOSCA (referencia de acero AISI 1010)
+#   BATAN13 Atom Indonesia 2014, imán del ciclotrón 13 MeV de BATAN con Opera-3D/TOSCA (eficiencia B_valle/(μ0·NI/g) = 0.84)
+#   CONST  Constante física o condición de referencia (no es una estimación)
+#   MODELO Opción de configuración del modelo (no es una cota de la máquina)
+#   EST    Estimado — REEMPLAZAR cuando haya documento
+
+beam:
+  T_MeV:            {v: 18.0,   src: TUP03}
+  ion:              {v: H-,     src: TUP03}
+  rf_MHz:           {v: 40.646, src: T04F8}
+  rf_harmonic:      {v: 2,      src: CALC, note: "B0 = 1.335 T; <B>(18 MeV) = 1.360 T"}
+  dee_voltage_kV:   {v: 40.0,   src: TUD03}
+  B_hill_T:         {v: 2.15,   src: S09,  note: "mapa medido: 2.2–2.3 T en colina, ~1.8–1.9 sobre el inserto; media efectiva"}
+  B_valley_T:       {v: 0.45,   src: S09,  note: "mapa medido 0.40–0.50 T a r = 0.35–0.50 m"}
+  current_uA:       {v: 150.0,  src: DS,   note: "versiones 100/150/180/300 µA en blanco; 2 haces simultáneos"}
+  dE_turn_keV:      {v: auto,   src: CALC, note: "2·N_dee·V·sin(h·α_dee/2) ≈ 98 keV/vuelta"}
+  hill_eff_angle:   {v: auto,   src: CALC, note: "ancho efectivo hard-edge resuelto por isocronía exacta (≈46.7°)"}
+
+yoke:                              # A = tapa, B = yugo lateral
+  side:             {v: 1740.0, src: TUP04}
+  height:           {v: 860.0,  src: TUP04}
+  corner_chamfer:   {v: 263.0,  src: T04F2, note: "cateto del chaflán; las 4 esquinas cortadas"}
+  plate_thickness:  {v: 181.0,  src: CALC, note: "v0.18: FE calibrado (validation/calibrar_iman.py). T04F1 da 166 ± 15 (razón A:B = 86:137 px); 181 es el extremo superior y quita 2.6 kA·v de caída radial en la tapa (Bmax 2.23 → 2.18 T). Antes 166 (T04F1)"}
+  cavity_radius:    {v: 778.0,  src: T04F2, note: "radio interior del yugo lateral B"}
+  port_height:      {v: 120.0,  src: EST,  note: "muescas en la cara superior de B (T04F1, foto S09)"}
+  port_widths:      {v: [143.0, 250.0], src: T04F2, note: "ancho a r=820 mm de los 2 puertos por cara"}
+  pump_hole_radius: {v: 127.0,  src: T04F2, note: "PAT16: 2Ra = 240–300 mm para 18 MeV; 2Ra/La ≥ 70 % (reiv. 16: el modelo 67.7 %, dentro del ±3 mm de T04F2 si La ≈ 363)"}
+  pump_hole_r_pos:  {v: 375.0,  src: T04F2, note: "4 agujeros en valles, atraviesan A y C"}
+  is_port_w:        {v: 65.0,   src: T04F2, note: "aberturas (2) de T04F2 = inserción radial de las fuentes [VE24 Fig.1]"}
+  is_port_h:        {v: 80.0,   src: EST,  note: "centrada en el plano medio, entre las bobinas"}
+  lifting_corners:  {v: [45.0, 225.0], src: T04F2}
+  floor_to_top:     {v: 1550.0, src: SRG,  note: "plano medio a 1120 mm del piso terminado (SRG §4.3.5 y SRG-0420; confirmado en público por JUAS22: 1.12 m) + H/2 = 430. Antes 1600 (TUD03, aprox.)"}
+  edge_chamfer:     {v: 45.0,   src: DSR,  note: "chaflán 45° de las aristas exteriores superior/inferior (banda gris en la ficha)"}
+
+pole:
+  n_sectors:        {v: 4,      src: TUP04}
+  hill_angle:       {v: 45.0,   src: TUP04, note: "azimutal geométrico (18/9: 55°)"}
+  hill_center0:     {v: 45.0,   src: T04F2, note: "colinas hacia las esquinas, valles al centro de caras"}
+  hill_side_offset: {v: 10.0,   src: T04F2, note: "lados rectos desplazados hacia dentro (colina más estrecha cerca del centro)"}
+  # v0.34: ajuste de isocronía (shimming de los bordes de colina, fem/shim_iso2.py, validation/isocronia.json): giro Δα(r)
+  # por lado [°] sobre los lados rectos, interpolado entre shim_r [mm]. Sin él (v0.32) el error era −3.7 % a 1 MeV y no
+  # había órbita de 18 MeV. Con él: ±0.28 % en 0.5–17.5 MeV con el nivel de operación (coil.escala_iso), ventana 3D de ≈40°
+  shim_r:           {v: [60, 100, 150, 200, 280, 360, 400, 430, 455, 480, 500], src: CALC}
+  shim_dalpha:      {v: [0.0, 2.07, 0.69, 0.16, -0.2, 0.53, 0.07, 0.79, 0.03, 3.6, -1.61], src: CALC, note: "iteración 8 (jacobiano medido sobre las órbitas, con cotas): ensanche cerca del centro (+2.1° a 100 mm) y en el borde (+3.6° a 480 mm, el máximo que deja ≥ 5 mm al dee: la iteración 7 pedía +5.8° y se metía en la caja del dee)"}
+  gap:              {v: 24.0,   src: TUP04}
+  valley_floor_z:   {v: 100.0,  src: CALC, note: "v0.21: gap de valle Gv = 200 mm, límite inferior de PAT16 (US9907153 reiv. 19: 200–250). Con la cuña del corrector de gradiente (PAT16) y 115 kA·v (19 kW) el FE da ⟨B⟩ = 1.325 T y flutter 0.390 frente a KEY22 (1.3253 / 0.394). Con 110 el flutter cuadra igual pero pide 121 kA·v. Historia: 66 → 110 (v0.7) → 95 (v0.18, Gv 190, fuera de la patente) → 100"}
+  sector_C_radius:  {v: 546.0,  src: T04F2, note: "disco C en 4 piezas de 90°, dentro de la cámara"}
+  step1_radius:     {v: 529.0,  src: T04F2, note: "escalón 1, sigue la geometría del sector"}
+  step2_edge_L:     {v: 526.0,  src: CALC,  note: "v0.34: 512 (T04F2) + 14 mm del ajuste de isocronía (tope: el escalón 1 está a 529): con 512 el campo caía ~25 mm antes que en KEY22 y no había órbita cerrada a 18 MeV. Escalón 2 (achaflanado) en el centro de colina; arco descentrado, R por óptica"}
+  step2_thickness:  {v: 20.0,   src: T04F3, note: "estimado de la figura"}
+  step2_chamfer:    {v: 8.0,    src: EST}
+  insert_groove_w:  {v: 52.0,   src: T04F2}
+  insert_groove_d:  {v: 35.0,   src: T04F3, note: "~0.65 del espesor del polo"}
+  insert_recess:    {v: 2.0,    src: TUP04, note: "perfil de fresado; cortes de 10 mm × 5 mm"}
+  gc_cut_width:     {v: 78.0,   src: PAT16, note: "v0.21: abertura L10 de la cuña del corrector de gradiente = 3.25·Gh (US10278277: 3–3.5·Gh). T04F3 medía 48 de ancho de la ranura vista en planta (antes)"}
+  gc_cut_depth:     {v: 39.0,   src: PAT16, note: "v0.21: profundidad H10 = L10/2 (cuña de 90°) = 7.6 % de Lh (US10278277: 6–10 %). Antes 26 (EST, ranura rectangular)"}
+  gc_forma:         {v: cuna,   src: PAT16, note: "corrector rebajado en cuña de 90° en el borde de la colina, en el cruce de cada trayectoria de extracción (2 por colina), en la mitad superior de la altura de la colina (lado del gap). «ranura» = forma rectangular anterior"}
+  gc_alto_frac:     {v: 0.5,    src: PAT16, note: "fracción de la altura de la colina ocupada por la cuña desde el gap (US10278277: 45–55 %)"}
+  central_plug_r:   {v: 52.0,   src: T04F2}
+  plug_recess:      {v: 15.0,   src: CALC, note: "v0.21: rebaje del tapón F para la joroba central de KEY22 (⟨B⟩(0)/⟨B⟩(0.45 m) = 1.033) con valle 100 y cuña; 16 daba 1.011. Antes 16 (v0.18), 17 (v0.7)"}
+
+coil:
+  inner_radius:     {v: 568.0,  src: T04F2}
+  radial_width:     {v: 191.0,  src: T04F2, note: "18/9: 164 mm [BON21]"}
+  height:           {v: 190.0,  src: EST,  note: "apoyada sobre A (z 74→264); 18/9: 220 mm"}
+  z_bottom:         {v: 59.0,   src: CALC, note: "= cara de A − altura (430 − 181 − 190)"}
+  eff_density:      {v: 7.02,   src: CALC, note: "Cu 2 t en total [IPAC26] → fracción volumétrica de Cu 0.74 + epoxi-vidrio 0.16 + agua 0.10"}
+  NI_FE_curva1010:  {v: 170000, src: CALC, note: "histórico (v0.7): NI que pedía el FE con la curva 1010 genérica (J_s 2.0 T), tapa 166 y valle 110. El 75 % de la fuerza magnetomotriz se iba en el hierro (Ampère por tramos, v0.18)"}
+  NI_FE_calibrado:  {v: 115000, src: CALC, note: "v0.21: NI del FE 3D calibrado (acero bajo C J_s 2.12 T, tapa 181, valle 100 = Gv 200 de PAT16, corrector de gradiente en cuña de PAT16, tapón −15) para ⟨B⟩ = 1.3253 T en 0.38–0.47 m (KEY22): coincide con NI_total de 19 kW (IPAC26). v0.18: 116 k con valle 95 (fuera de la patente)"}
+  escala_iso:       {v: 1.0103, src: CALC, note: "v0.35: óptimo de la simulación fuente → blanco (fem/fuente_a_blanco.py): con la región central real el haz sale a fase +13…+33° y el máximo de partículas en la lámina (55 % de la salida de la región central) está en ×1.0103 (×1.0099: 9 %, ×1.0107: 1 %); NI ≈ 119.9 kA·v. v0.34: nivel de campo de operación para isocronía (f_RF 40.640 MHz, h = 2) = mapa FE oficial a 115 kA·v × 1.0098 (óptimo 3D: 36/70 con betatrón, 34/70 con 1.0097 y 1.0099; en el mapa de la iteración 8 el óptimo era 1.0092, la diferencia es ruido de malla FE de −0.05 %); con d lnB/d lnNI = 0.24 (calibración) → NI ≈ 119.7 kA·v (+4.1 %, ≈20.6 kW). La ventana de fases útil se desplaza ±25° por cada ±0.05 % de nivel: se ajusta en operación con la corriente"}
+  NI_total:         {v: 115000, src: CALC, note: "v0.21 (decisión del usuario: referencia 19 kW de IPAC26 como potencia de bobinas): P = ρ·L²·NI²/V_Cu con 2 t de Cu (IPAC26), vuelta media 4.17 m, ρ(40 °C) = 1.85e-8 Ω·m → 115 kA·v (119 a 20 °C). Antes 105 (16 kW supuestos). TUD03T «< 11 kW» (≈ 90 kA·v) queda como discrepancia registrada"}
+  power_kW:         {v: 19.0,   src: IPAC26, note: "bobinas + bomba de agua e intercambiador. v0.21: se adopta 19 kW = bobinas (decisión del usuario). DISCREPANCIA registrada: TUD03T diap. 4 (IBA 2016): «keeping <11 kW magnet need» → con 2 t de Cu, NI ≤ 87–91 kA·v; el FE calibrado (116 kA·v) pide 19.4 kW de bobinas, coherente con IPAC26 solo si los 19 kW son todo bobina"}
+
+vacuum_chamber:
+  inner_radius:     {v: 548.0,  src: T04F2}
+  wall:             {v: 18.0,   src: T04F2, note: "anillo entre polo y bobina [TUP04]"}
+
+dee:
+  n:                {v: 2,      src: CALC}
+  valleys:          {v: [90.0, 270.0], src: TUD03, note: "Fig.2: dees en 2 valles opuestos"}
+  angle:            {v: 39.0,   src: TUD03T, note: "v0.26: ancho angular de la caja del dee medido en el render en planta de TUD03T (diap. 9), rectificado con los 4 insertos de polo (a 90° y de igual longitud): 38.5–40° entre 0.4 y 1.0 R_inserto, 39.1 ± 0.6° promediando los 2 dees (en profundidades opuestas, la perspectiva se compensa). Antes 38 (EST). Cerca del centro las puntas son de 50° (punta_ang)"}
+  r_min:            {v: 60.0,   src: EST,  note: "TUD03T diap. 5 (mapa Opera de la región central, mm): las puntas de los dees llegan a r ≈ 10 mm y se unen en el centro por un cuello de ≈ 3–4 mm; 60 + puente_w es una representación gruesa de eso (pendiente de refinar)"}
+  r_max:            {v: 500.0,  src: EST}
+  aperture:         {v: 28.0,   src: EST}
+  plate_t:          {v: 8.0,    src: EST}
+  stem_radius:      {v: 25.0,   src: CALC, note: "fem_rf: con la caja del dee (top_z) y los dummy dees reproduce f_RF = 40.646 MHz (T04F8; FEM 40.680, +0.08 %). Con 45 (EST anterior) no se llega ni con el dee a 10 mm del suelo del valle. Calibración no única: out/fem_rf/barrido.json"}
+  top_z:            {v: 74.5,   src: CALC, note: "v0.34: las colinas ensanchadas por el shim de isocronía (Δα hasta 3.6° por lado a 480 mm) añaden capacidad dee–tierra y bajan f a 40.10 MHz con 76.7; con 74.5 → 40.638 MHz (−0.02 %, dentro del rango del sintonizador ±0.09 MHz), sensibilidad −0.245 MHz/mm. v0.26: cara superior de la caja del dee (cobre homogeneizado copper_dee_caja), 23.3 mm bajo el suelo del valle (100); 1.7 MV/m a 40 kV. Recalibrado con fem_rf (malla 0.035/0.55) con el dee de 39° (TUD03T), puntas a z 8–12, cuello y sintonizador nominal: 40.656 MHz (+0.02 %). v0.24: 78.7 con dee de 38°; v0.22: 77.9; v0.21: 75.6; v0.19: 72.6; v0.16: 86. Calibración no única"}
+  puente_w:         {v: 3.5,    src: TUD03T, note: "v0.22: cuello que une las puntas de los 2 dees en el centro, medido en el mapa Opera de IBA (TUD03T diap. 5): 3.5 mm de ancho (y = −0.5…+3). Confirma el acoplamiento galvánico supuesto en v0.19 (un solo amplificador y un solo cable de 50 Ω, SRG §3.6). v0.19: placa de 36 mm (EST)"}
+  puente_off:       {v: 1.25,   src: TUD03T, note: "desplazamiento del cuello respecto del eje de los dees (centro de y = −0.5…+3 mm)"}
+  punta_r:          {v: 8.0,    src: TUD03T, note: "las puntas de los dees llegan a r ≈ 7–9 mm del centro (mapa Opera, diap. 5)"}
+  punta_ang:        {v: 50.0,   src: TUD03T, note: "bordes radiales de las puntas a ±25° (±24.4…25.9° medidos a r ≈ 52 mm); la caja del dee (r > r_min) sigue con dee.angle"}
+  punta_t:          {v: 4.0,    src: EST,  note: "espesor de las placas de la punta (z 8–12): 15 mm hasta el tapón rebajado (z 27)"}
+  punta_z0:         {v: 8.0,    src: CALC, note: "v0.24: semiabertura de las puntas en la región central (placas a z 8–12, la caja del dee sigue a ±14). fem/central_region.py: con ±8 la región central acepta 95–105° de fase; con ±14 (la abertura de la caja) el campo acelerador no alcanza la chimenea, la aceptancia cae a 20–30° y el 82–90 % del haz choca en la primera vuelta"}
+  dummy_gap:        {v: 6.0,    src: EST,  note: "gap acelerador dee–dummy dee (dummy dees de cobre a tierra en los bordes de las colinas: JUAS22 p.44–45, foto del C18/9); valor numérico estimado"}
+
+rf:                               # v0.19: acoplador de potencia y sintonizador (EST: geometría no publicada)
+  # KEY22: penetraciones simétricas «RF coupler» (izquierda) y «RF tuner» (derecha). Aquí: acoplador en la carcasa
+  # del dee 0 (az 90°) y sintonizador en la del dee 1 (az 270°), ambos en la carcasa superior
+  acoplador_tipo:   {v: lazo,   src: EST,  note: "lazo inductivo en el extremo cortocircuitado del stem (máximo de corriente), plano del lazo con el eje del stem"}
+  acoplador_rho:    {v: [40.0, 110.0], src: CALC, note: "extensión radial del lazo desde el eje del stem; altura calculada (lazo_h) para acoplamiento crítico"}
+  acoplador_h:      {v: 30.0,   src: CALC, note: "v0.19: altura del lazo bajo la tapa para acoplamiento crítico con 180 µA (fem/rf_acoplos.py): 21.5 kW = 18.2 kW de paredes (Q real 0.65 × cobre) + 3.24 kW de haz; fem 1.47 kV en 50 Ω; Q cargado 1680, ancho de banda 24 kHz"}
+  acoplador_az:     {v: 0.0,    src: EST,  note: "orientación del lazo alrededor del stem (0 = hacia fuera, radial)"}
+  coax_feed_d:      {v: [40.0, 92.0], src: EST, note: "pasamuros coaxial 50 Ω (conductor interior / exterior; 92/40 → 50 Ω en vacío)"}
+  sintonizador_d:   {v: 40.0,   src: EST,  note: "pistón de cobre que baja desde la tapa de la carcasa por el hueco del stem. FEM v0.19: actúa sobre todo como sintonizador INDUCTIVO (deriva corriente del stem en la zona coaxial) → sube f; con Ø60 el efecto (+1 MHz) y las pérdidas eran excesivos"}
+  sintonizador_off: {v: 75.0,   src: EST,  note: "distancia del eje del pistón al eje del stem (hacia fuera)"}
+  sintonizador_gap: {v: 345.0,  src: CALC, note: "hueco punta–caja del dee en la posición nominal: punta a la salida de la carcasa (z ≈ 420), mitad del rango de frecuencia del barrido (retirado … punta a 80 mm). Rango por pistón ≈ ±0.09 MHz (fem/README_RF.md)"}
+  factor_Q_real:    {v: 0.65,   src: EST,  note: "Q real / Q de cobre ideal (juntas, contactos, inox chapado); rango típico 0.5–0.8"}
+  Z0_ohm:           {v: 50.0,   src: SRG,  note: "cable RF de 50 Ω entre el amplificador (PS2) y el ciclotrón (SRG §3.6)"}
+
+ion_source:
+  n:                {v: 2,      src: TUD03}
+  insertion:        {v: radial, src: VE24, note: "Fig.1 (2): inserción radial por el plano medio; igual en el KEY [KEY22]; render oficial: sin caja superior"}
+  axis_az:          {v: [6.7, 186.7], src: VE24, note: "Fig.3 '#IS' en (−0.78, −0.09) m, junto al puerto #8; la 2.ª fuente por simetría de 180°"}
+  body_radius:      {v: 6.5,    src: TUD03T, note: "v0.22: cuerpo de la chimenea ≈ Ø13 mm en el mapa Opera (TUD03T diap. 5; ±2 mm). Antes 9 (EST)"}
+  chimney_offset:   {v: 12.5,   src: TUD03T, note: "v0.22: chimeneas a r ≈ 12–13.5 mm del centro, simétricas a 180° (mapa Opera de IBA, TUD03T diap. 5), entre las puntas de los dees; movimiento motorizado en azimut y radio. Antes 18 (EST)"}
+  inner_len_r:      {v: 160.0,  src: EST,  note: "radio hasta donde el vástago es delgado (gap de colina)"}
+  stem_radius:      {v: 16.0,   src: EST,  note: "tubo portador en el valle (gap ±66 mm) y a través del yugo"}
+  actuator_d:       {v: 80.0,   src: DSR,  note: "cilindro horizontal oscuro en la cara del yugo (render oficial)"}
+  actuator_len:     {v: 110.0,  src: CALC, note: "acotado por la envolvente máxima de maniobra 2050 mm (SRG-0080); con 170 (DSR) la máquina medía 2160 mm en x"}
+  cover_wh:         {v: [160.0, 520.0], src: DSR, note: "pieza blanca vertical junto a la ventana (render oficial)"}
+  # v0.32: punta de la chimenea y puller en el CAD, iguales al modelo de la región central (fem/central_region.py, preset kiube)
+  chimenea_r:       {v: 3.0,    src: CALC, note: "radio de la punta de la chimenea en el plano medio (|z| ≤ 11); barrido 2.5–6.5 en validation/region_central_v32.json. El cuerpo de Ø13 (body_radius, mapa Opera ±2 mm) queda en el vástago, detrás de la punta"}
+  ang_antes_borde:  {v: 40.3,   src: TUD03T, note: "centro de la chimenea 40.3° antes del borde de entrada de la punta del dee que alimenta (mapa Opera de IBA, diap. 5); el vástago va recto hasta el puerto de la fuente"}
+  rendija_wh:       {v: [0.6, 6.0], src: CALC, note: "ancho × alto de la rendija (v0.25)"}
+  gap_puller:       {v: 2.8,    src: CALC, note: "gap chimenea–puller (v0.23)"}
+  puller_lwh:       {v: [3.0, 7.0, 10.0], src: CALC, note: "profundidad, ancho y abertura vertical de las mordazas (v0.24); largo total 2·prof + 6"}
+  puller_chaflan:   {v: [5.0, 45.0], src: CALC, note: "v0.31: bisel del borde interior frontal [mm, °]: +37 % de corriente a 6 vueltas con el menisco; campo máx. 37 → 14 MV/m"}
+
+extraction:
+  port_offsets:     {v: [17.2, 44.5], src: T04F2, note: "azimut de los puertos rel. al centro de colina a r=820 mm"}
+  port_ref_radius:  {v: 820.0,  src: T04F2}
+  window_radius:    {v: 590.0,  src: EST,  note: "solo si blanco_en_cara = false (modelo anterior a v0.27: blanco pegado a la cámara)"}
+  blanco_en_cara:   {v: true,   src: VE24, note: "v0.27: los blancos se montan fuera de la cara del yugo (VE24 Fig. 3 con ejes en m: cuerpos de blanco a ±0.88–0.98 m, la cara está a ±0.87) y la puerta blindada sobresale de la cara (foto VUB 2024). Antes: a r = 590 mm junto a la cámara (EST)"}
+  blanco_off_cara:  {v: 10.0,   src: VE24, note: "ventana del blanco a 10 mm fuera de la cara del yugo (±10, VE24 Fig. 3)"}
+  tubo_haz_d:       {v: [40.0, 50.0], src: EST, note: "tubo de vacío del puerto (interior/exterior) entre la cámara y el colimador, por la escotadura del yugo"}
+  collimator_d:     {v: 9.0,    src: TUP03}
+  stripper_foil_um: {v: 5.0,    src: BON21}
+  strippers_instalados: {v: [0, 2, 4, 6], src: PROP, note: "de serie se instalan 4 válvulas de vacío y 4 strippers (las otras 4 son opción 220.065); puertos 1-3-5-7 = pares opuestos para doble haz (asignación EST)"}
+  ve_ports:         {v: [3, 7],  src: VE24, note: "energía variable solo en 2 puertos (#8 y #4 de la Fig.3, verdes) = sistema 2 de los polos 1 y 3"}
+  ve_energy_MeV:    {v: 18.0,   src: VE24, note: "13–18 MeV; < 18 → horquilla larga + brida en cuña (calculadas)"}
+  carousel_radius:  {v: 28.0,   src: EST}
+  fork_len:         {v: 25.0,   src: CY11, note: "horquilla del carrusel de diseño C18/9 (usado en el C11, 5 mm más corta que la del C10). Para el KIUBE es EST por analogía"}
+  foils_por_carrusel: {v: 2,    src: CY11, note: "cada carrusel lleva 2 láminas (C18/9); VE24: «múltiples láminas» por redundancia"}
+  ve_energias_cuna: {v: [13.0, 14.0, 15.0, 18.0], src: VE24, note: "cuñas definidas por IBA: 0° a 18 MeV y cuñas para 13, 14 y 15 MeV (Instruments 8 (2024) 38 §2). Con 13 MeV: 90 µA en blanco líquido de Ga-68 con ventana de Nb de 75 µm"}
+  arm_tilt:         {v: -25.0,  src: TUD03, note: "carruseles inclinados (Fig.3); evita cruzar el haz del blanco vecino"}
+  arm_w:            {v: 10.0,   src: EST}
+  arm_h:            {v: 8.0,    src: EST}
+  foil_size:        {v: 10.0,   src: EST}
+
+target:
+  vac_window_um:    {v: 12.5,   src: BON21}
+  tgt_window_um:    {v: 35.0,   src: CON13, note: "v0.27: ventana Havar de 35 µm en operación (IBA, blancos cónicos de Nb, Cyclotrons2013 WEPSH043: «35 µm instead of 50 µm»). Antes 50 (BON21)"}
+  he_gap:           {v: 3.0,    src: EST}
+  window_d:         {v: 20.0,   src: EST}
+  cavity_d:         {v: 20.0,   src: EST,  note: "= ventana; volumen fijado por la ficha"}
+  cavity_depth:     {v: 9.23,   src: DS,   note: "Nirta F-500: 2.9 ml (F-700: 3.6 ml → 11.46 mm) [ficha KIUBE V6]"}
+  body_d:           {v: 60.0,   src: EST}
+  body_len:         {v: 95.0,   src: EST}
+  collimator_len:   {v: 40.0,   src: EST}
+  collimator_od:    {v: 36.0,   src: EST}
+  types:            {v: [F18, none, N13, none, F18, none, none, none], src: PROP, note: "proyecto: 2 × Nirta HCFT F18-700 (doble haz, puertos opuestos) + 1 × HCFT 13N-NH3 2.9 ml; puertos asignados EST. Tipos: F18 | N13 | C11 | Ga68 | none. Genérico anterior: 8 × F18"}
+  volumen_ml:       {v: {F18: 3.6, N13: 2.9, Ga68: 3.7, C11: 55.0}, src: PROP, note: "F18-700 3.6 ml (ficha DS); 13N 2.9 ml (PROP 226.040); Ga68 inserto 3.7 ml y 11C-CO2 55 ml (folleto CBR). La profundidad se calcula con cavity_d"}
+  puertas_blindadas: {v: [0, 4], src: PROP, note: "2 × Nirta Shielded Door (220.060) en los blancos F18; HDPE (VUB 2024, ficha IBA: «HDPE doors (18 cm)»); SRG §2.1.8.8: ÷10 en flujo n; IBA: activación del hormigón ÷2.3 (2.7 → 1.15 Bq/g a 0–10 cm tras 20 años con 35 200 µAh/año)"}
+  puerta_hdpe_mm:   {v: 180.0,  src: VUB24, note: "espesor de HDPE aguas abajo del blanco (ficha IBA citada por VUB-UZ Brussel, FANC 16-10-2024)"}
+  puerta_wh:        {v: [260.0, 260.0], src: EST, note: "sección de la caja de la puerta (foto VUB: dos cajas negras en la cara del yugo)"}
+
+proyecto:                         # configuración del sistema cotizado (PROP) — sin datos comerciales
+  modelo:           {v: KIUBE 180, src: PROP, note: "art. 201.052; 18 MeV, 180 µA; 24 Ci de 18F en 2 h (PROP) / 20 Ci (CBR)"}
+  I_max_uA:         {v: 180.0,  src: PROP}
+  doble_haz:        {v: true,   src: PROP, note: "art. 201.072: 2 puertos opuestos simultáneos; la suma = corriente máxima (SRG §2.1.8.2)"}
+  fuentes_iones:    {v: 2,      src: PROP, note: "1 de serie + 2.ª fuente art. 201.070"}
+  helio_blancos:    {v: false,  src: PROP, note: "blancos HCFT sin enfriamiento por He (opcional 227.001/002)"}
+  sitio:            {v: "Villahermosa, Tabasco (MX), ~10 m s.n.m.", src: PROP, note: "SRG §7 (altitud > 2000 m) NO aplica"}
+  superficie_m2:    {v: [440.0, 120.0], src: PROP, note: "IntegraLab ONE: 440 m² + 120 m² técnicos"}
+
+sitio:                            # requisitos de instalación (SRG) — base para el gemelo de la instalación
+  vault_min:        {v: [3800.0, 3800.0, 2500.0], src: SRG, note: "recomendado 4000 × 4000; altura 2500"}
+  muro:             {v: [2000.0, 2400.0], src: SRG, note: "espesor total de muro, hormigón ≥ 2350 kg/m³ (UE público)"}
+  techo:            {v: [1700.0, 2300.0], src: SRG}
+  foso_prof:        {v: 400.0,  src: SRG, note: "foso bajo el ciclotrón con trincheras a sala de fuentes e intercambiador (SRG-0010)"}
+  izado:            {v: {techo: [2400.0, 2400.0], lateral: [2300.0, 2100.0]}, src: SRG}
+  puerta_min:       {v: [1000.0, 2000.0], src: SRG}
+  agua_enfriada:    {v: {kW: 55.0, l_min: 100.0, T_C: [6.0, 16.0], dp_bar: 1.0, p_max_bar: 10.0}, src: SRG}
+  potencia:         {v: {KIUBE100: [70, 45], KIUBE150: [85, 55], KIUBE180: [95, 60], KIUBE300: [100, 65], eco: [5, 3]}, src: SRG, note: "[kVA instalados, kW consumo]; 3×400 V TN-S; UPS 20 kVA"}
+  calor_vault_kW:   {v: 5.0,    src: SRG}
+  calor_sala_fuentes_kW: {v: 15.0, src: SRG, note: "80 % en el armario RF (PS2)"}
+  aire_comprimido:  {v: {p_barg: 7.0, pico_l_min: 70.0, clase: "ISO8573.1 1-4-1"}, src: SRG}
+  gases:            {v: {H2_fuente: "99.9999 %, SS316 1/16\", ~2 barg", He_ventanas: "99.8 %, ~0.5 barg", He_drenaje: "99.9999 %", N2_venteo: "99.9 %"}, src: SRG}
+  cable_rf:         {v: {L_m: 20.0, OD_mm: 36.0, r_curv_mm: 350.0, kg_m: 1.55}, src: SRG}
+  ventilacion:      {v: {renovaciones_h: 10, dp_Pa: -60}, src: SRG}
+  armarios:         {v: {PS1: [800, 500, 1880, 215], PS2_RF: [600, 800, 1880, 600], PS3: [600, 800, 1880, 500], PS4_PLC: [600, 800, 1880, 250], acondicionador_agua: [1300, 700, 1610, 220]}, src: SRG, note: "W × D × H mm, kg"}
+  equipos_vault:    {v: {elevacion_hidraulica: [650, 450, 800, 145], bomba_primaria: [690, 400, 500, 36], compresor_He: [690, 400, 500, 90]}, src: SRG}
+  dist_max_m:       {v: {sala_fuentes: 15, intercambiador: 20, laboratorio: 20}, src: SRG, note: "laboratorio > 20 m: −2.5 % de actividad 18F garantizada por cada 10 m"}
+
+fuente_rad:                       # término fuente y referencias de dosis (SRG §2.1.8) — para validar el Monte Carlo
+  n_por_p_18O:      {v: 6.9e-3, src: SRG, note: "18O(p,n) a 18 MeV; Emax 15 MeV, pico ~2 MeV. BON21 (FLUKA) da 4.93e-3. OJO: el mismo SRG da 3.55e11 n/s a 40 µA, que implica 1.42e-3 n/p (incoherente)"}
+  g_por_p_18O:      {v: 8.3e-3, src: SRG}
+  dosis_1m_uSv_h:   {v: {KIUBE180_2x100uA: {0: 1.2e8, 90: 2.7e7, 180: 1.2e8}}, src: SRG, note: "frente al blanco 18F a 1 m, dentro del búnker (Tabla 8)"}
+  dosis_muro_uSv_h: {v: {KIUBE180_2x100uA: {200: 3.62, 220: 0.79, 230: 0.40}}, src: SRG, note: "contacto tras X cm de hormigón 2.35 g/cm³ (Tabla 9). Benchmark propio (validation/benchmark_srg.py): el modelo da 50–150 × menos y TVL 25.6 cm frente a 33.5 cm del SRG → usar el SRG (conservador) para diseño"}
+
+vault:                            # búnker — solo modelos Monte Carlo
+  # RPOS = Radiopharma-OS, services/yield_engine/app/domain/plano_bunker.py (plano DWG BIND 02-10-26)
+  enabled:          {v: true,   src: RPOS}
+  inner_x:          {v: 5900.0, src: RPOS, note: "sala interior 5.9 m — estimado_sobre_plano_pendiente_verificacion"}
+  inner_y:          {v: 4700.0, src: RPOS, note: "fondo 4.7 m — estimado_sobre_plano_pendiente_verificacion"}
+  inner_height:     {v: 2500.0, src: TUD03, note: "altura no medible en planta; 2.5 m posible con KIUBE (TUD03)"}
+  wall:             {v: 2110.0, src: RPOS, note: "muro oeste 2.11 m medido_sobre_plano (±0.1 m); resto de muros = EST igual"}
+  floor:            {v: 500.0,  src: EST}
+  ceiling:          {v: 1700.0, src: SRG,  note: "mínimo del rango SRG 1700–2300 mm; valor real de los cortes pendiente. Estudio v0.28 (validation/techo_bunker.py, cuarto de A/A encima, T 1/40): 1 mSv/año con 50–150 k µAh/año → 1.55–1.67 m (T 1/40) o 1.62–1.74 m (T 1/20), escalado al SRG; < 50 µSv/h a 2×100 µA → 1.68 m. 1.70 m cumple salvo 150 k µAh/año con T 1/20 (1.74 m)"}
+  maze:             {v: none,   src: RPOS, note: "laberinto sur con 2 cambios de dirección: NO modelado aún"}
+
+exterior:                         # completado según ficha técnica y renders oficiales
+  overall_xyz:      {v: [2000.0, 2000.0, 1850.0], src: SRG, note: "SRG Tabla 1 (W×D×H); máx. de maniobra 2050 × 2050 × 1850 (SRG-0080). La ficha DS/CBR redondea a 1.9 × 1.9 × 1.8 m; JUAS22: 1.95 × 1.95 × 1.85 m"}
+  weight_t:         {v: 18.0,   src: SRG,  note: "18 000 kg sobre 4 patas (SRG Tabla 4); 10 kg/cm² en el piso; caja de envío 18 500 kg. JUAS22 da 17 t (el modelo: 17.5 t)"}
+  rf_housing_d:     {v: 300.0,  src: DSR, note: "2 carcasas sobre la tapa, en los valles de los dees"}
+  rf_housing_h:     {v: 220.0,  src: DS,  note: "techo a 1.82 m del piso (ficha: 1.8 m total)"}
+  pump_d:           {v: 250.0,  src: DSR, note: "bombas difusoras bajo la máquina (TUD03: 4 ODP)"}
+  pump_h:           {v: 450.0,  src: DSR}
+  leg_square:       {v: 220.0,  src: SRG,  note: "huella del pilar 220 × 220 mm (SRG Tabla 4 y Tabla 29)"}
+  leg_plate:        {v: 350.0,  src: SRG,  note: "pies 350 × 350 mm (plano SRG-0315); nivelación ±1 mm con 10 calces inox de 1 mm"}
+  leg_xy:           {v: 525.0,  src: SRG,  note: "centros de los pies a ±525 mm en x e y (plano SRG-0315)"}
+  eyebolt:          {v: {d_int: 94.0, t: 43.0, top_floor: 1850.0, rosca: M48}, src: SRG, note: "cáncamo giratorio M48 central (Schiltz 2131.11.048, 32 t): ÚNICO punto de izado arriba (SRG §6.2/6.4, SRG-0080); altura total 1850 = su parte superior"}
+  skirt_h:          {v: 150.0,  src: DSR, note: "faldón de lamas negro bajo el yugo"}
+  pipe_d:           {v: 40.0,   src: DSR, note: "anillo de tuberías de agua"}
+  jack_d:           {v: 140.0,  src: DSR, note: "gato principal por esquina + uno auxiliar"}
+  holder_wh:        {v: [160.0, 520.0], src: DSR, note: "OBSOLETO v0.6: la pieza blanca es de la fuente de iones (ion_source.cover_wh), no un soporte de blanco"}
+  self_shield:      {v: false,  src: SRG, note: "opción solo KIUBE 100/150 (SRG §9); el proyecto PROP es KIUBE 180 → sin autoblindaje"}
+  self_shield_piece: {v: [4720.0, 2735.0, 2895.0], src: SRG, note: "SRG Tabla 33 (cada mitad). Discrepan: ficha DS 4645 × 2770 × 2575; folleto CBR conjunto 5.2 × 4.3 × 2.45 m"}
+  self_shield_mass_kg: {v: {vacia: 6560.0, magnetita: 34000.0, agua: 7500.0, llena: 48100.0}, src: SRG, note: "casco de acero; compartimento interior de agua y exterior de magnetita anegada (SRG §9, Tabla 37)"}
+  self_shield_wall: {v: 410.0,  src: CALC, note: "espesor de pared que da 48.1 t por mitad con la mezcla homogeneizada (ρ ≈ 3.2 g/cm³) en la envolvente SRG; geometría interior real no publicada"}
+
+auxiliares:                       # equipamiento de servicio visible en la foto real (VE24 p.7). COSMÉTICO (print/render)
+  # F7 = medido en la foto VE24 p.7 con la altura del yugo (860 mm ≈ 280 px en la esquina frontal) como escala,
+  #      corrigiendo el escorzo de la cara a ~45°: ±20 %. La foto es la unidad de formación (iba Academy):
+  #      la disposición de servicios puede variar entre instalaciones.
+  activo:           {v: true,   src: F7,  note: "false = máquina «limpia» como en el render oficial"}
+  cara_servicio_az: {v: 0.0,    src: F7,  note: "cara +x (la de la fuente de iones az 6.7°), a la izquierda de la esquina de elevación az 45° en la foto"}
+  colector_d:       {v: 48.0,   src: F7,  note: "colector de latón ≈ 14 px → DN40 (OD 48)"}
+  colector_z:       {v: -320.0, src: F7,  note: "≈ 110 mm sobre la cara inferior del yugo"}
+  colector_sep:     {v: 115.0,  src: F7,  note: "separación desde la cara del yugo (libra el anillo de tuberías)"}
+  colector_u:       {v: [-20.0, 560.0], src: F7, note: "tramo sobre la cara, hacia la esquina de elevación"}
+  n_ramales:        {v: 8,      src: F7,  note: "derivaciones con válvula de bola (manilla roja)"}
+  ramal_d:          {v: 22.0,   src: F7}
+  manguera_d:       {v: 16.0,   src: F7,  note: "mangueras azules de agua a las bobinas"}
+  manguera_z_bajo:  {v: -810.0, src: F7,  note: "recorrido horizontal bajo la máquina, por debajo del anillo de tuberías"}
+  transmisor_wdh:   {v: [40.0, 40.0, 90.0], src: F7, note: "caudalímetros / transmisores azules en los ramales pares"}
+  manguera_negra_d: {v: 44.0,   src: F7,  note: "acometida de agua (EPDM negra) desde el codo del colector"}
+  caja_u:           {v: -560.0, src: F7,  note: "caja eléctrica gris claro en el extremo izquierdo de la cara"}
+  caja_whd:         {v: [360.0, 520.0, 200.0], src: F7, note: "ancho × alto × fondo"}
+  caja_z_sup:       {v: -380.0, src: F7}
+  espiral_u:        {v: -150.0, src: F7,  note: "manguera neumática en espiral azul colgante"}
+  espiral_odl:      {v: [90.0, 10.0, 600.0], src: F7, note: "Ø exterior, Ø del tubo, largo"}
+  espiral_paso:     {v: 18.0,   src: F7}
+  cadena_inset:     {v: 110.0,  src: F7,  note: "cadena portacables negra sobre la tapa, a lo largo del perímetro"}
+  cadena_wh:        {v: [90.0, 70.0], src: F7, note: "ancho × alto (≈ 18 px de alto)"}
+  cadena_paso:      {v: 50.0,   src: F7}
+
+vacuum:                           # vacío / Molflow+ / pérdidas de H⁻ por gas residual
+  gas_mass_g_mol:   {v: 2.016,  src: CONST, note: "H₂ dominante (gas de la fuente PIG)"}
+  temperature_K:    {v: 293.15, src: CONST, note: "20 °C, referencia"}
+  active_pumps:     {v: [bomba_dp_az000, bomba_dp_az180, bomba_rf_az090, bomba_rf_az270], src: TUD03, note: "4 bombas (ODP): 2 difusoras bajo la máquina (renders DS) + 2 en las carcasas RF (ubicación EST)"}
+  pump_speed_l_s:   {v: 2000.0, src: EST,  note: "difusora 6\" para H₂ en la brida. TUD03T: las bombas son 4 × VHS-6 (Agilent; catálogo ≈ 2400 l/s aire, ≈ 3000 l/s He en la boca); 2000 l/s útiles tras válvula/baffle sigue siendo EST"}
+  port_transmission: {v: 0.42,  src: CALC, note: "Clausing L/d ≈ 1.4 del agujero A+C (364 mm / Ø254)"}
+  P_base_measured_mbar: {v: 2.7e-7, src: TUD03T, note: "vacío base con RF (40 kV, 40.65 MHz, 4 ODP): 2.7e-7 mbar (presentación TUD03, diap. 8; antes 3.0e-7 redondeado)"}
+  pumpdown_medido:  {v: {t_min: [15, 30, 45], P_mbar: [1.9e-5, 3.6e-6, 2.4e-6]}, src: TUD03T, note: "bombeo con 4 VHS-6 tras 2 h abierto, sin venteo de N₂ (diap. 7); el último valor es cota superior (< 2.4e-6)"}
+  specific_outgassing: {v: {default: 3.0e-10, pared_acero: 3.0e-10, pared_inox: 3.0e-10, pared_cobre: 3.0e-10}, src: CERN-CH, note: "mbar·l/s/cm² de H₂O a 10 h (Ec.13, Tabla 3); usado solo para el archivo de MolflowCLI a t = 10 h"}
+  outgassing_q1h_H2O: {v: 3.0e-9, src: CERN-CH, note: "Ec.13: q_H2O ≈ 3e-9/t[h] mbar·l/s/cm², metales sin hornear tras limpieza (inox, Cu, Al, Ti)"}
+  outgassing_alpha:  {v: 1.0,    src: CERN-CH, note: "q ∝ t^-α, α = 1 para metales (Sec. 4)"}
+  outgassing_factor: {v: {pared_inox: 1.0, pared_cobre: 1.0, pared_aluminio: 1.0, pared_acero: 30.0, lamina_c: 1.0, pared_niobio: 1.0}, src: CALC, note: "v0.20: pared_acero = 30 ajustado al bombeo medido (TUD03T: 3.6e-6 a 30 min y < 2.4e-6 a 45 min tras 2 h al aire sin N₂; el modelo da 3.8e-6 y 2.5e-6). Con 1.0 (CERN-CH, metal limpio) el modelo salía 15–40× optimista. El punto de 15 min (1.9e-5) queda bajo (7.5e-6): al principio la desorción cae más rápido que t^-1. Resto de materiales: CERN-CH"}
+  seal_length_m:    {v: 12.8,   src: EST,  note: "juntas de Viton: 2 de la cámara (2×π×1.13 m) + 4 bridas de bomba + 8 puertos + RF/fuentes"}
+  seal_perm_mbar_l_s_cm: {v: 5.3e-9, src: CERN-CH, note: "permeación de agua por Viton: 1e-7 mbar·l/s en toro Ø6 cm, sección 5 mm (Sec. 6.2) → por cm; estacionaria tras ~2 meses (crece como erf)"}
+  seal_exposed_cm2: {v: 130.0,  src: EST,  note: "banda de elastómero expuesta al vacío (~1 mm × 12.8 m)"}
+  polymer_q10h_H2O: {v: 1.0e-7, src: CERN-IS, note: "Viton sin hornear a 10 h: «del orden de 1e-7» mbar·l/s/cm², H₂O (Tabla 10); q ∝ t^-0.5 en polímeros [CERN-CH Sec.5]"}
+  pump_speed_H2O_l_s: {v: 1300.0, src: EST, note: "difusora 6\" para vapor de agua/N₂ en la brida (H₂: pump_speed_l_s)"}
+  P0_ultimate_mbar: {v: 0.0,    src: MODELO, note: "presión última de las bombas (Ec.1 de CERN-CH: P = Q/S + P0); 0 = solo carga de gas modelada"}
+  h2_sccm_per_active_source: {v: 2.0, src: EST, note: "AMIT usa 3.5 sccm [arXiv:2103.15583]"}
+  active_source:    {v: "0",    src: MODELO, note: "fuente 0 o 1 (twin proton, TUD03): opción de simulación"}
+  injection_energy_MeV: {v: 0.04, src: CALC, note: "≈ 1 cruce de gap a 40 kV"}
+  gas_loss_fraction: {v: 0.15,  src: TUD03, note: "transmisión fuente→stripper 81 % (pérdida total ≤ 19 %); AMIT 14.6 % por gas. TUD03T diap. 8: 81 % con 150 µA (válvula de H₂ en 4), > 77 % con 180 µA (6), 63 % con solo 2 ODP; C18/9: 55 %"}

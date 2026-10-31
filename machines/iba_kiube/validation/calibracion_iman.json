@@ -1,0 +1,658 @@
+{
+ "KEY22": {
+  "B_banda_T": 1.3252714117647058,
+  "F_banda": 0.39358571428571426,
+  "B_centro_rel": 1.032919695222647
+ },
+ "S09": {
+  "B_colina_T": 2.15,
+  "B_valle_T": 0.45
+ },
+ "BATAN13_eficiencia_valle": 0.8342507809529277,
+ "sensibilidad_dlnB_dlnNI": {
+  "FE_calibrado": 0.23885199143057848,
+  "CY11_TOSCA": 0.21136363636363636
+ },
+ "casos": [
+  {
+   "NI_total": 105000.0,
+   "B_banda_T": 1.1864812168173193,
+   "F_banda": 0.4149281366684814,
+   "B_colina_045": 2.005272821191915,
+   "B_valle_045": 0.3506571270602025,
+   "B_centro_rel": 0.9833170458321356,
+   "caso_id": "base",
+   "Js": null,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 17740.438761684672,
+     "Hdl_aire": 19838.001759159997,
+     "Bmax_hierro": 2.212080191284249
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 14813.653176712713,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.1153988638835517
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 407.4885184270409,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.6984524482527066
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.5846637772594042,
+   "fraccion_hierro": 0.6242772967784149
+  },
+  {
+   "NI_total": 170000.0,
+   "B_banda_T": 1.328371548260968,
+   "F_banda": 0.3410029698439019,
+   "B_colina_045": 2.1688317800710166,
+   "B_valle_045": 0.4821629752756351,
+   "B_centro_rel": 1.0412460129967342,
+   "caso_id": "base",
+   "Js": null,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 30778.788498287828,
+     "Hdl_aire": 21350.257538944064,
+     "Bmax_hierro": 2.346175068809771
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 31935.29726176359,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.2243551013895853
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 1191.92446206303,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.8578752599783732
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.4965440175300818,
+   "fraccion_hierro": 0.7495755080578842
+  },
+  {
+   "NI_total": 115000.0,
+   "B_banda_T": 1.3252615305989073,
+   "F_banda": 0.3894415302967422,
+   "B_colina_045": 2.218947484803304,
+   "B_valle_045": 0.42633800726261595,
+   "B_centro_rel": 1.0299257761936602,
+   "caso_id": "cal20_final",
+   "Js": null,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 20149.841070320086,
+     "Hdl_aire": 21308.680122398524,
+     "Bmax_hierro": 2.377069597564569
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 14482.650168140517,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.2436156994288377
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 758.7468887253218,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.8894793856047367
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.5900330546416843,
+   "fraccion_hierro": 0.6241849939077347
+  },
+  {
+   "NI_total": 115000.0,
+   "B_banda_T": 1.3246129093875816,
+   "F_banda": 0.3896349023425407,
+   "B_colina_045": 2.220349513797138,
+   "B_valle_045": 0.4229079802402487,
+   "B_centro_rel": 1.029933558609823,
+   "caso_id": "cal20_final_h6",
+   "Js": null,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 20374.149196583883,
+     "Hdl_aire": 21279.242673271245,
+     "Bmax_hierro": 2.378586266410179
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 15983.61972746887,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.2475189803929685
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 640.960107057393,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.8305317783167765
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.5852860480716973,
+   "fraccion_hierro": 0.6348664503766275
+  },
+  {
+   "NI_total": 115000.0,
+   "B_banda_T": 1.3250278407362146,
+   "F_banda": 0.38974719912546024,
+   "B_colina_045": 2.218070014227869,
+   "B_valle_045": 0.4254685835879919,
+   "B_centro_rel": 1.0109680064850801,
+   "caso_id": "cal20_v100",
+   "Js": null,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 20138.599679428968,
+     "Hdl_aire": 21278.27570951241,
+     "Bmax_hierro": 2.37715537505341
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 14447.056273950953,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.24329457725284
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 648.7081901440936,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.856908165631299
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.588829810507271,
+   "fraccion_hierro": 0.623477583690171
+  },
+  {
+   "NI_total": 115000.0,
+   "B_banda_T": 1.310196021987505,
+   "F_banda": 0.39740191901598143,
+   "B_colina_045": 2.202216130575901,
+   "B_valle_045": 0.40989455274602016,
+   "B_centro_rel": 1.0089305082414302,
+   "caso_id": "cal20_v110",
+   "Js": null,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 21814.806470364187,
+     "Hdl_aire": 21166.523438882825,
+     "Bmax_hierro": 2.3767014646934777
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 13224.529420447214,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.2197267283752327
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 664.550644286542,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.876769176223872
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.6240036403266765,
+   "fraccion_hierro": 0.6278113091049126
+  },
+  {
+   "NI_total": 125000.0,
+   "B_banda_T": 1.3365288063951468,
+   "F_banda": 0.3840373580843195,
+   "B_colina_045": 2.2330317791017955,
+   "B_valle_045": 0.43442761852316925,
+   "B_centro_rel": 1.0188937077130957,
+   "caso_id": "cal20_v110",
+   "Js": null,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 24168.697563028032,
+     "Hdl_aire": 21431.495939150194,
+     "Bmax_hierro": 2.4015173157635474
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 15309.170609821824,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.243026528347515
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 824.7583877003271,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.9018734804408257
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.608443465551703,
+   "fraccion_hierro": 0.6528419766676977
+  },
+  {
+   "NI_total": 116000.0,
+   "B_banda_T": 1.3239798603079491,
+   "F_banda": 0.38078285193683037,
+   "B_colina_045": 2.2041659934595947,
+   "B_valle_045": 0.4459536290548041,
+   "B_centro_rel": 1.026473256380637,
+   "caso_id": "cal_final",
+   "Js": 2.12,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 20144.946033435568,
+     "Hdl_aire": 21731.73561307136,
+     "Bmax_hierro": 2.3886952795251037
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 15863.41834677988,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.2435706934230906
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 689.7068769022222,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.860244660927551
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.5812667088892196,
+   "fraccion_hierro": 0.6280710689091987
+  },
+  {
+   "NI_total": 116000.0,
+   "B_banda_T": 1.323131738810426,
+   "F_banda": 0.3810748301680469,
+   "B_colina_045": 2.2048095227680795,
+   "B_valle_045": 0.42971954162265413,
+   "B_centro_rel": 1.0236014327989422,
+   "caso_id": "cal_final_h6",
+   "Js": 2.12,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 20097.714472018262,
+     "Hdl_aire": 21243.799530606684,
+     "Bmax_hierro": 2.3863743337162595
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 15881.565617297547,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.2400339740936706
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 670.0545622639077,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.84353947928185
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.5601068080414433,
+   "fraccion_hierro": 0.6330514864896819
+  },
+  {
+   "NI_total": 105000.0,
+   "B_banda_T": 1.2929947025859463,
+   "F_banda": 0.39639513887141503,
+   "B_colina_045": 2.1678041818841827,
+   "B_valle_045": 0.41747352689952016,
+   "B_centro_rel": 0.9930460810888385,
+   "caso_id": "cal_p181_v95",
+   "Js": 2.12,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 17740.083875597164,
+     "Hdl_aire": 21400.440494695522,
+     "Bmax_hierro": 2.359410815994976
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 13225.16333851112,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.214265091035927
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 544.4327775401332,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.8107580190956367
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.6011507299548825,
+   "fraccion_hierro": 0.5955321912332641
+  },
+  {
+   "NI_total": 115000.0,
+   "B_banda_T": 1.3213973738013367,
+   "F_banda": 0.38213547544740983,
+   "B_colina_045": 2.2012727075487946,
+   "B_valle_045": 0.4439830889177523,
+   "B_centro_rel": 1.0053828775792295,
+   "caso_id": "cal_p181_v95",
+   "Js": 2.12,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 19940.95222109313,
+     "Hdl_aire": 21705.008104959248,
+     "Bmax_hierro": 2.386148979303778
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 15594.886673118024,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.240701826171946
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 671.3659434015613,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.8578548345976234
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.5837304181560463,
+   "fraccion_hierro": 0.6252084490972087
+  },
+  {
+   "NI_total": 105000.0,
+   "B_banda_T": 1.2423417343890522,
+   "F_banda": 0.42345553978600486,
+   "B_colina_045": 2.1068496028728996,
+   "B_valle_045": 0.35782451721907615,
+   "B_centro_rel": 0.9760318170900769,
+   "caso_id": "js2.12",
+   "Js": 2.12,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 17458.942380817112,
+     "Hdl_aire": 20859.575453439982,
+     "Bmax_hierro": 2.3308821698192195
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 14112.182400566004,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.2314905909219367
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 379.35127870043664,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.7785541346651872
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.5966142356416732,
+   "fraccion_hierro": 0.6050074776371259
+  },
+  {
+   "NI_total": 115000.0,
+   "B_banda_T": 1.2690535620420753,
+   "F_banda": 0.40948982383975807,
+   "B_colina_045": 2.1402522934969137,
+   "B_valle_045": 0.3811973698934459,
+   "B_centro_rel": 0.988554440548006,
+   "caso_id": "js2.12_barrido",
+   "Js": 2.12,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 19707.296832474694,
+     "Hdl_aire": 21163.497407058192,
+     "Bmax_hierro": 2.3560501887328167
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 16515.29524909507,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.2577513558723834
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 432.9209153405457,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.8180049583680913
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.5803164372468583,
+   "fraccion_hierro": 0.6339699130235269
+  },
+  {
+   "NI_total": 125000.0,
+   "B_banda_T": 1.2938608884683391,
+   "F_banda": 0.39655718169136245,
+   "B_colina_045": 2.1701318738703863,
+   "B_valle_045": 0.40353074535688715,
+   "B_centro_rel": 0.9996157321779728,
+   "caso_id": "js2.12_barrido",
+   "Js": 2.12,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 21879.550574135814,
+     "Hdl_aire": 21434.36366091007,
+     "Bmax_hierro": 2.3792324598904186
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 18991.39837382258,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.2810535815731283
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 506.0326810244263,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.8566545153630105
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.5651704327553282,
+   "fraccion_hierro": 0.6587501260801825
+  },
+  {
+   "NI_total": 135000.0,
+   "B_banda_T": 1.3171068837560629,
+   "F_banda": 0.3846349713911019,
+   "B_colina_045": 2.1974169105533017,
+   "B_valle_045": 0.424859856609822,
+   "B_centro_rel": 1.009307895615215,
+   "caso_id": "js2.12_barrido",
+   "Js": 2.12,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 23963.616679761446,
+     "Hdl_aire": 21683.023016963696,
+     "Bmax_hierro": 2.4009635679961785
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 21591.877001940225,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.2977083231829583
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 598.9095461141261,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.8703679552588373
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.5509659328210648,
+   "fraccion_hierro": 0.6803678409212593
+  },
+  {
+   "NI_total": 105000.0,
+   "B_banda_T": 1.2709450381523646,
+   "F_banda": 0.4087188391338383,
+   "B_colina_045": 2.1427804616031176,
+   "B_valle_045": 0.38341337530210445,
+   "B_centro_rel": 0.9881316870948631,
+   "caso_id": "placa181",
+   "Js": 2.12,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 19756.1653488159,
+     "Hdl_aire": 21182.004344169738,
+     "Bmax_hierro": 2.356704103423853
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 11489.93373781623,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.1766526238450674
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 521.7094464370767,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.8524347062815965
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.6392794982815784,
+   "fraccion_hierro": 0.599960732755015
+  },
+  {
+   "NI_total": 105000.0,
+   "B_banda_T": 1.2893511758076641,
+   "F_banda": 0.39376661156438414,
+   "B_colina_045": 2.1588947611451976,
+   "B_valle_045": 0.3849628125941979,
+   "B_centro_rel": 0.9748382072061672,
+   "caso_id": "valle75",
+   "Js": 2.12,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 12398.113544511498,
+     "Hdl_aire": 21284.54290249267,
+     "Bmax_hierro": 2.317811089682538
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 17978.015394151458,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.27580310540936
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 484.87442629539885,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.854940136964548
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.43763381807803947,
+   "fraccion_hierro": 0.5918243373398435
+  },
+  {
+   "NI_total": 120000.0,
+   "B_banda_T": 1.3290782737674511,
+   "F_banda": 0.37491128032625903,
+   "B_colina_045": 2.2061956390170354,
+   "B_valle_045": 0.41741727187829863,
+   "B_centro_rel": 0.9958405500807972,
+   "caso_id": "valle75",
+   "Js": 2.12,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 14857.263712314552,
+     "Hdl_aire": 21717.34062871754,
+     "Bmax_hierro": 2.354867277706014
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 22407.338099124263,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.3053930688563904
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 644.9236838049018,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.879540646684893
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.4152126384460301,
+   "fraccion_hierro": 0.6357792713175923
+  },
+  {
+   "NI_total": 105000.0,
+   "B_banda_T": 1.2690090223325443,
+   "F_banda": 0.4072650556017743,
+   "B_colina_045": 2.137327782494917,
+   "B_valle_045": 0.38402808568489877,
+   "B_centro_rel": 0.9752443781755985,
+   "caso_id": "valle90",
+   "Js": 2.12,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 14639.695391439607,
+     "Hdl_aire": 21108.873171342988,
+     "Bmax_hierro": 2.328819137784874
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 16209.38903644027,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.249629231519145
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 424.7988198668114,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.8182238850747932
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.5238854410531677,
+   "fraccion_hierro": 0.5970262999819852
+  },
+  {
+   "NI_total": 120000.0,
+   "B_banda_T": 1.308636216166224,
+   "F_banda": 0.38745187081251076,
+   "B_colina_045": 2.185182656227819,
+   "B_valle_045": 0.4187526805129075,
+   "B_centro_rel": 0.9941876547329322,
+   "caso_id": "valle90",
+   "Js": 2.12,
+   "ampere": [
+    {
+     "tramo": "vertical r=0.30 (gap + polo + sector C + tapa A)",
+     "Hdl_hierro": 17494.680700850895,
+     "Hdl_aire": 21544.456209311404,
+     "Bmax_hierro": 2.3656151742059093
+    },
+    {
+     "tramo": "radial en la tapa A",
+     "Hdl_hierro": 20265.26146188858,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 2.2844536657955117
+    },
+    {
+     "tramo": "vertical en el yugo lateral B",
+     "Hdl_hierro": 549.3529140155262,
+     "Hdl_aire": 0.0,
+     "Bmax_hierro": 1.8649311628034915
+    }
+   ],
+   "eficiencia_valle_BATAN": 0.4998491927745781,
+   "fraccion_hierro": 0.640048355426524
+  }
+ ]
+}

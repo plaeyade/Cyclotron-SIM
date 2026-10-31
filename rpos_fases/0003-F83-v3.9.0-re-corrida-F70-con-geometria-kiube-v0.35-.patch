@@ -1,0 +1,220 @@
+From 0451031e0ab8e6b6619a585041bb362e8b5c39df Mon Sep 17 00:00:00 2001
+From: rpos <rpos@local>
+Date: Wed, 28 Oct 2026 18:23:05 -0600
+Subject: [PATCH 3/5] F83 v3.9.0: re-corrida F70 con geometria kiube v0.35
+ (Geant4 QGSP_BIC_HP, bunker BIND, blancos en cara del yugo con puertas HDPE):
+ exterior directo 0.002-0.008 uSv/h, TVL 25-28 cm; F78 contradicha
+ (sobreestima ~1.7e7); activacion Co60/Eu152/Cu64 0.7-1.6x F72; 4 pruebas
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01UsuNxxGDpmcCyJTGFRkq7k
+---
+ CHANGELOG.md                   |  14 ++++
+ pipelines/blindaje_v035_f83.py | 125 +++++++++++++++++++++++++++++++++
+ pipelines/test_blindaje_f83.py |  40 +++++++++++
+ 3 files changed, 179 insertions(+)
+ create mode 100644 pipelines/blindaje_v035_f83.py
+ create mode 100644 pipelines/test_blindaje_f83.py
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 31d12c8..f411ca1 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -278,3 +278,17 @@ Todas las versiones siguen semver. Cada fase tiene commit, tag y evidencia en
+ - vacuum_tpmc.CamaraVacio.bombas: bombas configurables (posición, tapa, radio, captura); por defecto, la disposición V04
+   (regresión bit a bit). F67 (Molflow+) sigue afectada y pendiente. 6 pruebas nuevas.
+ - Todo simulacion_teorica: no cierra 18.19; PQ no_declarada_nunca (14.9).
++
++## v3.9.0 — 2026-10-28 — Fase 83: re-corrida de F70 con la geometría kiube v0.35 (Geant4)
++- pipelines/blindaje_v035_f83.py: máquina kiube v0.35 (blancos F18 en la cara del yugo, puertas HDPE 18 cm) en el
++  bloque BIND de F70 (muros 2,11 m, losa 0,55 m, techo 1,45 m); 18O(p,n) BON21, 2 × 90 µA. Geant4 11.4 QGSP_BIC_HP
++  (sin ENDF/B-VIII.0 HDF5 para OpenMC en el entorno): cálculo independiente; la evidencia de F70 no se toca.
++- Cascarones laterales de importancia (×2,15 cada 10 cm): primeras cuentas DIRECTAS fuera del muro: 0,002–0,008 µSv/h
++  (media de cara, contacto 0–30 cm), parche frente a T1 0,027 µSv/h. Transmisión del muro 0,6–2,5e-9; TVL 25–28 cm
++  (SRG Tabla 9 ≈ 30 cm). Fracción de dosis fuera del bloque 2,7e-4 (criterio F70 < 0,05).
++- F78 CONTRADICHA: μ = 0,0142 cm⁻¹ (TVL 162 cm) da T(225 cm) = 4,1e-2; F83 da 2,4e-9 → la extrapolación de F78
++  sobreestima la dosis exterior ~1,7e7 veces (conservadora, no representativa). Registro append-only.
++- Activación de saturación (Høgdahl): Co60 10 GBq, Eu152 4,8 GBq, Cu64 590 GBq (0,7–1,6 × F72), Ag110m 0,57 GBq
++  (0,025 × F72; I0 Ag109→110m EST). 12 corridas × 2000 historias, error estándar entre corridas.
++- Artefacto de varianza declarado (meseta a 1,4–2,0 m de profundidad); F71/F76/F77 siguen afectadas. 4 pruebas.
++- Todo simulacion_teorica: no cierra 18.19; PQ no_declarada_nunca (14.9).
+diff --git a/pipelines/blindaje_v035_f83.py b/pipelines/blindaje_v035_f83.py
+new file mode 100644
+index 0000000..a141399
+--- /dev/null
++++ b/pipelines/blindaje_v035_f83.py
+@@ -0,0 +1,125 @@
++#!/usr/bin/env python3
++"""F83 — Re-corrida de F70 (MC máquina + búnker BIND) con la geometría kiube v0.35 — marca de afectación de F81.
++
++Motor: Geant4 11.4 (QGSP_BIC_HP, G4NDL) en lugar de OpenMC 0.16: en este entorno no hay biblioteca ENDF/B-VIII.0 en
++HDF5 y la red solo permite registros de paquetes/GitHub. La evidencia de F70 (OpenMC) no se toca; esta fase es un
++cálculo independiente con otro código (lo que además sirve de contraste cruzado de F70).
++Geometría: máquina kiube v0.35 teselada (GDML del LOD neutrónico; blancos F18 T1/T5 en la cara del yugo, r ≈ 969 mm,
++con puertas de HDPE de 18 cm) en el bloque BIND igual al de F70 (sala 5,9 × 4,7 × 2,5 m, muros 2,11 m, losa 0,55 m,
++techo 1,45 m). Fuente 18O(p,n) BON21 (4,93e-3 n/p), 2 × 90 µA (KIUBE 180, PROP).
++Reducción de varianza: cascarones laterales de importancia cada 10 cm (factor 2,15) a través de los muros → cuentas
++directas fuera del muro (F70: 0 cuentas; F78 las extrapoló).
++Entradas (repositorio kiube): out/mc_f70v035/<caso>/resultado_mapa.json y mapa_h10.npz (md5 registrado).
++Reglas: simulacion_teorica, pq no_declarada_nunca, append-only, 18.10, memoria 3.
++Rutas: KIUBE_RAIZ, RPOS_EVIDENCIA, F83_CASO (por defecto out/mc_f70v035/h2500_t1450).
++"""
++import datetime, hashlib, json, math, os, pathlib
++
++KIUBE = pathlib.Path(os.environ.get("KIUBE_RAIZ", "/mnt/agents/work/kiube_v035/kiube"))
++CASO = KIUBE / os.environ.get("F83_CASO", "out/mc_f70v035/h2500_t1450")
++EV = pathlib.Path(os.environ.get("RPOS_EVIDENCIA", "/mnt/agents/work/evidencia_v072"))
++OUT = EV / "fase83"
++
++# valores de referencia de F70/F72/F78 citados de los mensajes de commit/CHANGELOG del repositorio (la evidencia JSON de
++# esas fases vive en evidencia_v072, que no está en este entorno: se citan, no se recalculan)
++REF = {
++    "F70_fuera_bloque_rel_max": 0.05,                 # test_mc_f70: 0 < dose_integral_fuera_bloque_rel < 0.05
++    "F70_exterior_cuentas": 0,                        # F76/F78: exterior en 0 cuentas
++    "F78_mu_cm_inv": 0.0142,                          # commit F78 v3.4.0
++    "F78_T_H10": 4.13e-2,                             # commit F78: transmisión estimada interior 287 → exterior 512 cm
++    "F72_A_sat_Bq": {"Co60": 6.4e9, "Eu152": 6.4e9, "Ag110m": 23e9, "Cu64": 861e9},   # commit F73 (unidades corregidas)
++}
++
++
++def md5(p):
++    h = hashlib.md5()
++    with open(p, "rb") as f:
++        for c in iter(lambda: f.read(1 << 20), b""):
++            h.update(c)
++    return h.hexdigest()
++
++
++def ejecutar():
++    OUT.mkdir(parents=True, exist_ok=True)
++    R = json.load(open(CASO / "resultado_mapa.json"))
++    caras = R["caras_plano_medio"]
++    # transmisión directa del muro: exterior (0–30 cm fuera, media de la cara) / interior (capa de sala junto al muro)
++    trans, mus = {}, {}
++    for k, c in caras.items():
++        ext, se = c["exterior_0_30cm_cara_uSv_h"]
++        trans[k] = dict(exterior_uSv_h=ext, exterior_se=se, interior_uSv_h=c["interior_cara_uSv_h"],
++                        T_directa=(ext / c["interior_cara_uSv_h"]) if c["interior_cara_uSv_h"] else None,
++                        mu_cm_inv=c["mu_cara_cm_inv"], tvl_cm=c["tvl_cara_cm"])
++        if c["mu_cara_cm_inv"]:
++            mus[k] = c["mu_cara_cm_inv"]
++    mu_med = sum(mus.values()) / len(mus) if mus else None
++    T_225_v035 = math.exp(-mu_med * 225) if mu_med else None
++    act = R["activacion_saturacion"]
++    comp_act = {iso: dict(F83_Bq=act[iso]["A_sat_Bq"], F83_se_Bq=act[iso]["sigma_Bq"], F72_Bq=REF["F72_A_sat_Bq"][iso],
++                          cociente_F83_F72=act[iso]["A_sat_Bq"] / REF["F72_A_sat_Bq"][iso], fuente_xs=act[iso]["fuente_xs"])
++                for iso in act}
++    out = {
++        "fase": 83, "version": "3.9.0", "tipo": "simulacion_teorica", "pq": "no_declarada_nunca",
++        "fecha": datetime.datetime.now().isoformat(timespec="seconds"),
++        "titulo": "Re-corrida F70 con geometría kiube v0.35 (Geant4, búnker BIND, blancos en cara del yugo con puertas HDPE)",
++        "motor": {"codigo": "Geant4 11.4.3", "fisica": "QGSP_BIC_HP (G4NDL)", "motivo_cambio": (
++            "sin ENDF/B-VIII.0 HDF5 para OpenMC en este entorno; F70 (OpenMC) queda como evidencia y esta fase es un "
++            "cálculo independiente con otro código")},
++        "entradas": {"caso": str(CASO.relative_to(KIUBE)), "md5_resultado": md5(CASO / "resultado_mapa.json"),
++                     "md5_mapa": md5(CASO / "mapa_h10.npz"), "corridas": R["corridas"], "historias": R["historias_totales"],
++                     "fuente": R["fuente"], "bloque": R["bloque_hormigon"]},
++        "resultados": {
++            "integral_dosis_fuera_bloque_rel": R["integral_dosis_fuera_bloque_rel"],
++            "puntos_1m_T1_uSv_h": R["srg_tabla8_uSv_h"],
++            "muros": trans, "mu_medio_cm_inv": mu_med, "tvl_medio_cm": math.log(10) / mu_med if mu_med else None,
++            "techo_exterior_medio_uSv_h": R["techo_exterior_medio_uSv_h"],
++            "activacion": comp_act},
++        "comparacion": {
++            "F70_fuera_bloque_rel": {"F70_criterio": f"< {REF['F70_fuera_bloque_rel_max']}", "F83": R["integral_dosis_fuera_bloque_rel"],
++                                     "cumple": R["integral_dosis_fuera_bloque_rel"] < REF["F70_fuera_bloque_rel_max"]},
++            "exterior_directo": {"F70": "0 cuentas (F76/F78)", "F83": {k: v["exterior_uSv_h"] for k, v in trans.items()}},
++            "F78_extrapolacion": {
++                "mu_F78_cm_inv": REF["F78_mu_cm_inv"], "mu_F83_cm_inv": mu_med,
++                "T_225cm_F78": REF["F78_T_H10"], "T_225cm_F83": T_225_v035,
++                "cociente_T_F78_sobre_F83": (REF["F78_T_H10"] / T_225_v035) if T_225_v035 else None,
++                "veredicto": "discrepancia: la μ de F78 (TVL 162 cm) no es física para hormigón de 2,35 g/cm³; el SRG "
++                             "(Tabla 9: 200 → 220 cm, ×4,6) da TVL ≈ 30 cm, y F83 23–29 cm. La dosis exterior de F78 "
++                             "está sobreestimada en muchos órdenes de magnitud (conservadora, pero no representativa)."},
++            "F72_activacion": "mismo orden en Co60/Eu152/Cu64; Ag110m difiere (I0 de Ag109→110m EST en F83; F72 sin desglose aquí). "
++                              "Normalización de corriente de F72 no disponible en este entorno: los cocientes son indicativos.",
++            "SRG_tabla8": "los puntos a 1 m incluyen la puerta de HDPE (configuración del proyecto); la Tabla 8 del SRG es sin "
++                          "puertas: no son comparables directamente (el benchmark sin puertas está en kiube v0.27, 0,51–1,22)."},
++        "advertencias": [
++            "Simulación teórica: sin haz real (memoria 3). No cierra 18.19; PQ no_declarada_nunca (14.9).",
++            "Código distinto de F70 (Geant4 frente a OpenMC): las diferencias incluyen geometría (v0.8 → v0.35) y código.",
++            "Exterior: estadística directa con error estándar entre corridas (cascarones de importancia); profundidades > 1,5 m con error > 50 %.",
++            "Artefacto de varianza declarado: entre 1,4 y 2,0 m de profundidad el perfil medio forma una meseta con barras de error grandes "
++            "(neutrones que cruzan el techo sin sesgo y entran en cascarones exteriores del muro con importancia alta). La esperanza es "
++            "insesgada pero la varianza es enorme; μ se ajusta en 40–130 cm y el exterior (0–30 cm fuera) es coherente con extrapolar la "
++            "exponencial. Corrección pendiente: limitar los cascarones a la altura de la sala.",
++            "Activación: convención de Høgdahl (σ0·φ_th + I0·φ_epi/u); σ de Eu151→152g e I0 de Ag109→110m son EST de orden de tabla.",
++            "Ventana de techo 1,45 m y losa 0,55 m: iguales a F70 por comparabilidad (techo real pendiente de los cortes; SRG mín. 1,7 m).",
++        ],
++    }
++    json.dump(out, open(OUT / "blindaje_v035_f83.json", "w"), indent=1, ensure_ascii=False, default=float)
++    with open(OUT / "registro_mc.jsonl", "a") as f:
++        f.write(json.dumps({"fecha": out["fecha"], "fase": 83, "md5_mapa": out["entradas"]["md5_mapa"],
++                            "historias": R["historias_totales"], "fuera_bloque_rel": R["integral_dosis_fuera_bloque_rel"]},
++                           ensure_ascii=False) + "\n")
++    with open(OUT / "resolucion_marcas_f81.jsonl", "a") as f:
++        for fase, est, nota in (("F70", "re_corrida_en_F83", "Geant4, geometría v0.35"),
++                                ("F72", "re_corrida_parcial_en_F83", "activación de saturación por región"),
++                                ("F78", "contradicha_por_F83", "μ 0,0142 cm⁻¹ frente a ~0,09 cm⁻¹ directo"),
++                                ("F71/F76/F77", "afectada_pendiente_re_corrida", "comparan con F70 v0.8")):
++            f.write(json.dumps({"fecha": out["fecha"], "fase_afectada": fase, "estado": est, "nota": nota}, ensure_ascii=False) + "\n")
++    return out
++
++
++if __name__ == "__main__":
++    o = ejecutar()
++    r = o["resultados"]
++    print("fuera bloque:", r["integral_dosis_fuera_bloque_rel"], " μ medio", r["mu_medio_cm_inv"], " TVL", r["tvl_medio_cm"])
++    for k, v in r["muros"].items():
++        print(k, {a: (f"{b:.3g}" if isinstance(b, float) else b) for a, b in v.items()})
++    print("F78:", o["comparacion"]["F78_extrapolacion"]["cociente_T_F78_sobre_F83"])
++    print({k: round(v["cociente_F83_F72"], 3) for k, v in r["activacion"].items()})
+diff --git a/pipelines/test_blindaje_f83.py b/pipelines/test_blindaje_f83.py
+new file mode 100644
+index 0000000..358a098
+--- /dev/null
++++ b/pipelines/test_blindaje_f83.py
+@@ -0,0 +1,40 @@
++#!/usr/bin/env python3
++"""Tests F83 — re-corrida de F70 con la geometría kiube v0.35 (Geant4)."""
++import json, os, pathlib
++
++EV = pathlib.Path(os.environ.get("RPOS_EVIDENCIA", "/mnt/agents/work/evidencia_v072")) / "fase83"
++E = json.load(open(EV / "blindaje_v035_f83.json"))
++
++
++def test_canon_y_trazabilidad():
++    assert E["fase"] == 83 and E["tipo"] == "simulacion_teorica" and E["pq"] == "no_declarada_nunca"
++    assert len(E["entradas"]["md5_mapa"]) == 32 and len(E["entradas"]["md5_resultado"]) == 32
++    assert E["entradas"]["corridas"] >= 5                           # media y error entre corridas independientes
++    assert E["entradas"]["fuente"]["puertas_HDPE"] is True
++    assert any("memoria 3" in a for a in E["advertencias"])
++
++
++def test_muros_fisicos():
++    m = E["resultados"]["muros"]
++    assert set(m) == {"oeste", "este", "sur", "norte"}
++    for v in m.values():
++        assert v["exterior_uSv_h"] > 0                              # cuentas directas fuera del muro (F70: 0)
++        assert 1e-12 < v["T_directa"] < 1e-6                        # 2,11 m de hormigón
++    assert 18 < E["resultados"]["tvl_medio_cm"] < 40                # SRG Tabla 9: TVL ≈ 30 cm
++
++
++def test_contraste_F70_F78():
++    c = E["comparacion"]
++    assert c["F70_fuera_bloque_rel"]["cumple"]
++    assert c["F78_extrapolacion"]["cociente_T_F78_sobre_F83"] > 1e3     # F78 sobreestima la transmisión
++    assert "discrepancia" in c["F78_extrapolacion"]["veredicto"]
++
++
++def test_activacion_y_marcas():
++    a = E["resultados"]["activacion"]
++    assert set(a) == {"Co60", "Eu152", "Cu64", "Ag110m"}
++    for iso in ("Co60", "Eu152", "Cu64"):
++        assert 0.1 < a[iso]["cociente_F83_F72"] < 10                # mismo orden que F72
++    res = [json.loads(l) for l in (EV / "resolucion_marcas_f81.jsonl").read_text().splitlines() if l.strip()]
++    est = {r["fase_afectada"]: r["estado"] for r in res}
++    assert est["F70"] == "re_corrida_en_F83" and est["F78"] == "contradicha_por_F83"
+-- 
+2.43.0
+

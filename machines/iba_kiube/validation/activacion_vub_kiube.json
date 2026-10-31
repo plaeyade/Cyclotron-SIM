@@ -1,0 +1,89 @@
+{
+ "fuente": "Covens (VUB-UZ Brussel), «Target shielding in a PET-production facility: effect on the activation of the biological shield?», FANC Round Table Class IIA, 16-10-2024 (VUB24)",
+ "instalacion": {
+  "maquina": "IBA Cyclone KIUBE (Cyclone 18P), puesto en marcha a finales de 2017",
+  "blancos": "4 de 8 puertos con Nirta 18F cónico: 2XL en puertos 3 y 7, 3XL en puertos 4 y 8",
+  "puertas": "Nirta shielded doors en cada blanco: HDPE 18 cm (ficha IBA)",
+  "carga_uAh_anio": {
+   "T3": 2000,
+   "T4": 50000,
+   "T7": 2000,
+   "T8": 50000
+  },
+  "periodo": "carga media desde 2022; primera evaluación del hormigón a finales de 2023"
+ },
+ "medida": {
+  "metodo": "varillas de hormigón (Ø4 cm, ~1 m) en una rejilla 3×3 por muro, ISOCS, MDA 0.03–0.06 Bq/g (2 h)",
+  "nivel_desclasificacion_Bq_g": 0.1,
+  "profundidad_cm": [
+   "0-15",
+   "15-30",
+   "30-45",
+   "45-60"
+  ],
+  "ubicacion_3": {
+   "Eu152": [
+    0.49,
+    0.2,
+    null,
+    null
+   ],
+   "Co60": [
+    0.38,
+    0.155,
+    0.035,
+    null
+   ]
+  },
+  "ubicacion_4": {
+   "Eu152": [
+    0.56,
+    0.305,
+    0.1,
+    null
+   ],
+   "Co60": [
+    0.44,
+    0.25,
+    0.085,
+    0.03
+   ]
+  },
+  "ubicacion_6": {
+   "Eu152": [
+    0.51,
+    0.29,
+    0.065,
+    null
+   ],
+   "Co60": [
+    0.37,
+    0.21,
+    0.05,
+    0.025
+   ]
+  },
+  "nota": "ubicaciones 3, 4 y 6 frente a los blancos 3 y 4; valores digitalizados de los gráficos de barras (±0.01 Bq/g)"
+ },
+ "calculo_IBA": {
+  "carga_uAh_anio": 35200,
+  "anios_operacion": 20,
+  "actividad_total_Bq_g_a_20_anios": {
+   "sin_puertas": {
+    "0-10": 2.65,
+    "10-20": 2.1,
+    "20-30": 0.8,
+    "30-40": 0.25
+   },
+   "con_puertas_HDPE_18cm": {
+    "0-10": 1.15,
+    "10-20": 0.6,
+    "20-30": 0.15,
+    "30-40": 0.05
+   }
+  },
+  "factor_reduccion_0_10cm": 2.3,
+  "conclusion_VUB": "medidas en línea con lo predicho; > desclasificación tras 2 años de producción rutinaria"
+ },
+ "uso": "validación futura del Monte Carlo de blindaje/activación (pendiente nº 2), con el búnker real"
+}

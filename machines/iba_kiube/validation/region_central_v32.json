@@ -1,0 +1,51 @@
+{
+ "casos": [
+  {
+   "diametro_mm": 5.0,
+   "tag": "v32_rc2.5",
+   "T": 50.24999999999999,
+   "err": 2.499968749804685,
+   "aceptancia_deg": 90.0,
+   "dc": 14.656249999999998,
+   "dc_err": 0.7291575520263665
+  },
+  {
+   "diametro_mm": 6.0,
+   "tag": "v31_ch5",
+   "T": 49.0,
+   "err": 2.4994999499899975,
+   "aceptancia_deg": 90.0,
+   "dc": 14.291666666666666,
+   "dc_err": 0.7290208187470826
+  },
+  {
+   "diametro_mm": 8.0,
+   "tag": "v32_rc4",
+   "T": 44.75,
+   "err": 2.486180554585688,
+   "aceptancia_deg": 90.0,
+   "dc": 13.052083333333334,
+   "dc_err": 0.7251359950874924
+  },
+  {
+   "diametro_mm": 10.0,
+   "tag": "v32_rc5",
+   "T": 46.0,
+   "err": 2.4919871588754225,
+   "aceptancia_deg": 80.0,
+   "dc": 12.13888888888889,
+   "dc_err": 0.6576077224810143
+  },
+  {
+   "diametro_mm": 13.0,
+   "tag": "v32_rc6.5",
+   "T": 46.0,
+   "err": 2.4919871588754225,
+   "aceptancia_deg": 75.0,
+   "dc": 11.5,
+   "dc_err": 0.6229967897188556
+  }
+ ],
+ "elegido_diametro_mm": 6.0,
+ "nota": "centro de la chimenea fijo (40.3° antes del borde, r 12.5); pared de la rendija 0.4 mm"
+}

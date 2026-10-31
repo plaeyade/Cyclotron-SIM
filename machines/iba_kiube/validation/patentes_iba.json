@@ -1,0 +1,232 @@
+{
+ "comprobaciones": [
+  {
+   "cota": "Gh gap de colina [mm]",
+   "modelo": 24.0,
+   "rango": [
+    22,
+    26
+   ],
+   "patente": "US9907153",
+   "tipo": "preferido",
+   "cumple": true
+  },
+  {
+   "cota": "Gv gap de valle [mm]",
+   "modelo": 200.0,
+   "rango": [
+    200,
+    250
+   ],
+   "patente": "US9907153 reiv. 19",
+   "tipo": "reivindicación",
+   "cumple": true
+  },
+  {
+   "cota": "Gh/Gv",
+   "modelo": 0.12,
+   "rango": [
+    0.08,
+    0.2
+   ],
+   "patente": "US9907153",
+   "tipo": "preferido",
+   "cumple": true
+  },
+  {
+   "cota": "αv ángulo de valle [°]",
+   "modelo": 45.0,
+   "rango": [
+    42,
+    45
+   ],
+   "patente": "US9907153 reiv. 20",
+   "tipo": "reivindicación",
+   "cumple": true
+  },
+  {
+   "cota": "αh ángulo de colina [°]",
+   "modelo": 45.0,
+   "rango": [
+    44,
+    50
+   ],
+   "patente": "US9907153",
+   "tipo": "preferido",
+   "cumple": true
+  },
+  {
+   "cota": "Gh/tan(αv) [mm]",
+   "modelo": 24.0,
+   "rango": [
+    null,
+    30
+   ],
+   "patente": "US9907153",
+   "tipo": "preferido",
+   "cumple": true
+  },
+  {
+   "cota": "2Ra diámetro del agujero de bombeo [mm]",
+   "modelo": 254.0,
+   "rango": [
+    240,
+    300
+   ],
+   "patente": "US9907153",
+   "tipo": "preferido",
+   "cumple": true
+  },
+  {
+   "cota": "2Ra/Lv",
+   "modelo": 0.4652,
+   "rango": [
+    0.48,
+    0.55
+   ],
+   "patente": "US9907153",
+   "tipo": "preferido",
+   "cumple": false
+  },
+  {
+   "cota": "2Ra/La",
+   "modelo": 0.6773,
+   "rango": [
+    0.7,
+    null
+   ],
+   "patente": "US9907153 reiv. 16",
+   "tipo": "reivindicación",
+   "cumple": false
+  },
+  {
+   "cota": "Lap = Lv − (La + Ra) [mm]",
+   "modelo": 44.0,
+   "rango": [
+    1,
+    30
+   ],
+   "patente": "US9907153",
+   "tipo": "preferido",
+   "cumple": false
+  },
+  {
+   "cota": "(Lap·Tv)/Lv²",
+   "modelo": 0.0136,
+   "rango": [
+    null,
+    0.03
+   ],
+   "patente": "US9907153",
+   "tipo": "preferido",
+   "cumple": true
+  },
+  {
+   "cota": "(Gv·Tv)/Lv²",
+   "modelo": 0.0617,
+   "rango": [
+    null,
+    0.1
+   ],
+   "patente": "US9907153 reiv. 17",
+   "tipo": "reivindicación",
+   "cumple": true
+  },
+  {
+   "cota": "(Gh·Gv)/Lv²",
+   "modelo": 0.0161,
+   "rango": [
+    null,
+    0.02
+   ],
+   "patente": "US9907153 reiv. 18",
+   "tipo": "reivindicación",
+   "cumple": true
+  },
+  {
+   "cota": "Lh radio del borde de colina [mm]",
+   "modelo": 512.0,
+   "rango": [
+    520,
+    550
+   ],
+   "patente": "US9907153 / US9961757 («típico»)",
+   "tipo": "preferido",
+   "cumple": false
+  },
+  {
+   "cota": "Rh/Lh",
+   "modelo": 0.64,
+   "rango": [
+    null,
+    0.65
+   ],
+   "patente": "US9961757",
+   "tipo": "preferido",
+   "cumple": true
+  },
+  {
+   "cota": "W9 ancho del inserto [mm]",
+   "modelo": 52.0,
+   "rango": [
+    15,
+    150
+   ],
+   "patente": "US10064264",
+   "tipo": "preferido",
+   "cumple": true
+  },
+  {
+   "cota": "W9/Ah",
+   "modelo": 0.1293,
+   "rango": [
+    null,
+    0.15
+   ],
+   "patente": "US10064264",
+   "tipo": "preferido",
+   "cumple": true
+  },
+  {
+   "cota": "H9/Hh altura del inserto / altura de colina",
+   "modelo": 0.3977,
+   "rango": [
+    0.4,
+    0.6
+   ],
+   "patente": "US10064264",
+   "tipo": "preferido",
+   "cumple": false
+  },
+  {
+   "cota": "H10/Lh profundidad del corrector de gradiente",
+   "modelo": 0.0762,
+   "rango": [
+    0.06,
+    0.1
+   ],
+   "patente": "US10278277",
+   "tipo": "preferido",
+   "cumple": true
+  },
+  {
+   "cota": "L10/Gh ancho del corrector / gap",
+   "modelo": 3.25,
+   "rango": [
+    3.0,
+    3.5
+   ],
+   "patente": "US10278277",
+   "tipo": "preferido",
+   "cumple": true
+  }
+ ],
+ "borde_vs_orbita": {
+  "edge_R_modelo": 327.742,
+  "rho_orbita_colina": 286.658,
+  "Rh_patente": 301.058,
+  "centro_arco_modelo": 184.258,
+  "centro_curvatura_orbita": 184.25799999999998
+ },
+ "nota": "Lv = radio del sector C (borde del suelo del valle); Tv = lado/2 − radio de la cavidad (cara, en el valle); Hh = suelo del valle − Gh/2. Las patentes no dan potencia del imán ni NI."
+}

@@ -1,0 +1,233 @@
+{
+ "abertura_mm": [
+  3.0,
+  4.0,
+  5.0,
+  6.0,
+  7.0,
+  8.0,
+  10.0,
+  12.0
+ ],
+ "transmision_pct": [
+  14.499999999999998,
+  16.75,
+  19.5,
+  19.75,
+  26.25,
+  26.0,
+  34.75,
+  31.0
+ ],
+ "error_pct": [
+  1.7605041891458253,
+  1.8671083926756906,
+  2.0,
+  1.9905636764494625,
+  2.1999644883497553,
+  2.193171219946131,
+  2.3808808769024967,
+  2.3124662159694354
+ ],
+ "metal_pct": [
+  71.75,
+  63.5,
+  52.5,
+  40.5,
+  29.5,
+  17.0,
+  3.25,
+  1.25
+ ],
+ "z_pct": [
+  13.75,
+  19.75,
+  28.0,
+  39.75,
+  44.25,
+  57.0,
+  62.0,
+  67.75
+ ],
+ "otros": [
+  {
+   "tag": "w5",
+   "sets": {
+    "puller_slit_h": "10",
+    "puller_w": "5"
+   },
+   "transmision_pct": 29.5,
+   "error_pct": 2.2802138057647134,
+   "aceptancia_deg": 95.0,
+   "perdidas": {
+    "vive": 29.5,
+    "z": 68.5,
+    "metal": 2.0,
+    "r": 0.0,
+    "nan": 0.0
+   }
+  },
+  {
+   "tag": "w10",
+   "sets": {
+    "puller_slit_h": "10",
+    "puller_w": "10"
+   },
+   "transmision_pct": 33.5,
+   "error_pct": 2.3599523300270286,
+   "aceptancia_deg": 95.0,
+   "perdidas": {
+    "vive": 33.5,
+    "z": 60.75,
+    "metal": 5.75,
+    "r": 0.0,
+    "nan": 0.0
+   }
+  },
+  {
+   "tag": "L2",
+   "sets": {
+    "puller_slit_h": "10",
+    "puller_len": "2"
+   },
+   "transmision_pct": 33.0,
+   "error_pct": 2.3510635891017495,
+   "aceptancia_deg": 95.0,
+   "perdidas": {
+    "vive": 33.0,
+    "z": 64.75,
+    "metal": 2.25,
+    "r": 0.0,
+    "nan": 0.0
+   }
+  },
+  {
+   "tag": "L5",
+   "sets": {
+    "puller_slit_h": "10",
+    "puller_len": "5"
+   },
+   "transmision_pct": 29.75,
+   "error_pct": 2.2857917118582787,
+   "aceptancia_deg": 100.0,
+   "perdidas": {
+    "vive": 29.75,
+    "z": 64.75,
+    "metal": 5.5,
+    "r": 0.0,
+    "nan": 0.0
+   }
+  },
+  {
+   "tag": "ap14_s10",
+   "sets": {
+    "puller_slit_h": "10",
+    "ap_half": "14"
+   },
+   "transmision_pct": 14.249999999999998,
+   "error_pct": 1.7478111311008409,
+   "aceptancia_deg": 20.0,
+   "perdidas": {
+    "vive": 14.25,
+    "z": 1.0,
+    "metal": 82.25,
+    "r": 2.5,
+    "nan": 0.0
+   }
+  },
+  {
+   "tag": "ap14_s14",
+   "sets": {
+    "puller_slit_h": "14",
+    "ap_half": "14"
+   },
+   "transmision_pct": 8.0,
+   "error_pct": 1.3564659966250536,
+   "aceptancia_deg": 30.0,
+   "perdidas": {
+    "vive": 8.0,
+    "z": 1.75,
+    "metal": 89.5,
+    "r": 0.75,
+    "nan": 0.0
+   }
+  },
+  {
+   "tag": "rend3",
+   "sets": {
+    "puller_slit_h": "10",
+    "slit_h": "3"
+   },
+   "transmision_pct": 54.75,
+   "error_pct": 2.488693181169587,
+   "aceptancia_deg": 105.0,
+   "perdidas": {
+    "vive": 54.75,
+    "z": 35.0,
+    "metal": 10.25,
+    "r": 0.0,
+    "nan": 0.0
+   }
+  },
+  {
+   "tag": "rend4",
+   "sets": {
+    "puller_slit_h": "10",
+    "slit_h": "4"
+   },
+   "transmision_pct": 43.75,
+   "error_pct": 2.4803918541230536,
+   "aceptancia_deg": 95.0,
+   "perdidas": {
+    "vive": 43.75,
+    "z": 53.5,
+    "metal": 2.75,
+    "r": 0.0,
+    "nan": 0.0
+   }
+  },
+  {
+   "tag": "rend5",
+   "sets": {
+    "puller_slit_h": "10",
+    "slit_h": "5"
+   },
+   "transmision_pct": 37.25,
+   "error_pct": 2.4173526325300574,
+   "aceptancia_deg": 95.0,
+   "perdidas": {
+    "vive": 37.25,
+    "z": 61.5,
+    "metal": 1.25,
+    "r": 0.0,
+    "nan": 0.0
+   }
+  },
+  {
+   "tag": "rend8",
+   "sets": {
+    "puller_slit_h": "10",
+    "slit_h": "8"
+   },
+   "transmision_pct": 25.0,
+   "error_pct": 2.165063509461097,
+   "aceptancia_deg": 95.0,
+   "perdidas": {
+    "vive": 25.0,
+    "z": 58.25,
+    "metal": 16.75,
+    "r": 0.0,
+    "nan": 0.0
+   }
+  }
+ ],
+ "elegido": {
+  "puller_slit_h": 10,
+  "puller_w": 7,
+  "puller_len": 3,
+  "gap_sp": 2.8,
+  "ap_half": 8
+ },
+ "techo_pct": 87.5,
+ "nota": "preset kiube, malla fina, 6 vueltas, 400 part\u00edculas, fuente a r 12.5 y 40.3\u00b0 del borde"
+}

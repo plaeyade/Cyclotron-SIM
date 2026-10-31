@@ -1,0 +1,136 @@
+{
+ "documentos": {
+  "SRG": "MID 55672 Rev. G (2023), propietario IBA",
+  "PROP": "cotización IBA 2025/8499 v02.01 (solo configuración técnica)"
+ },
+ "checks": [
+  {
+   "nombre": "plano medio sobre el piso",
+   "modelo": 1120.0,
+   "referencia": 1120.0,
+   "tolerancia": 5.0,
+   "unidad": "mm",
+   "ok": true,
+   "fuente": "SRG §4.3.5 / SRG-0420",
+   "nota": ""
+  },
+  {
+   "nombre": "altura total (cima del cáncamo)",
+   "modelo": 1850.0,
+   "referencia": 1850.0,
+   "tolerancia": 5.0,
+   "unidad": "mm",
+   "ok": true,
+   "fuente": "SRG Tabla 1 / SRG-0080",
+   "nota": ""
+  },
+  {
+   "nombre": "piso del modelo (pie más bajo)",
+   "modelo": 0.0,
+   "referencia": 0.0,
+   "tolerancia": 1.0,
+   "unidad": "mm",
+   "ok": true,
+   "fuente": "SRG",
+   "nota": ""
+  },
+  {
+   "nombre": "envolvente X (sin servicios ni blancos)",
+   "modelo": 2040.0,
+   "referencia": 1975.0,
+   "tolerancia": 75.0,
+   "unidad": "mm",
+   "ok": true,
+   "fuente": "SRG Tabla 1 (2000) y SRG-0080 (máx. 2050); ficha DS 1900",
+   "nota": ""
+  },
+  {
+   "nombre": "envolvente Y (sin servicios ni blancos)",
+   "modelo": 1920.0,
+   "referencia": 1975.0,
+   "tolerancia": 75.0,
+   "unidad": "mm",
+   "ok": true,
+   "fuente": "SRG Tabla 1 (2000) y SRG-0080 (máx. 2050); ficha DS 1900",
+   "nota": ""
+  },
+  {
+   "nombre": "posición de los pies (|x|, |y|)",
+   "modelo": 525.0,
+   "referencia": 525.0,
+   "tolerancia": 1.0,
+   "unidad": "mm",
+   "ok": true,
+   "fuente": "SRG-0315",
+   "nota": ""
+  },
+  {
+   "nombre": "pie en el piso (lado)",
+   "modelo": 350.0,
+   "referencia": 350.0,
+   "tolerancia": 1.0,
+   "unidad": "mm",
+   "ok": true,
+   "fuente": "SRG-0315",
+   "nota": ""
+  },
+  {
+   "nombre": "masa del ciclotrón",
+   "modelo": 17877.9,
+   "referencia": 18000.0,
+   "tolerancia": 1800.0,
+   "unidad": "kg",
+   "ok": true,
+   "fuente": "SRG Tabla 1/4 (18 000 kg)",
+   "nota": "tolerancia ±10 %: faltan piezas internas (RF, bombas reales, cableado) y hay cotas EST"
+  },
+  {
+   "nombre": "strippers instalados = PROP (4 de serie)",
+   "ok": true,
+   "fuente": "PROP 201.052"
+  }
+ ],
+ "masa_por_material_kg": {
+  "steel_1010": 15031.4,
+  "copper_coil_homog": 2123.2,
+  "stainless_304L": 572.4,
+  "aluminum_6061": 0.8,
+  "niobium": 6.9,
+  "hdpe": 34.4,
+  "copper_dee_caja": 63.2,
+  "copper_ofe": 46.1
+ },
+ "proyecto": {
+  "modelo": "KIUBE 180",
+  "blancos": [
+   "F18",
+   "none",
+   "N13",
+   "none",
+   "F18",
+   "none",
+   "none",
+   "none"
+  ],
+  "strippers": [
+   0,
+   2,
+   4,
+   6
+  ],
+  "strippers_modelo": [
+   0,
+   2,
+   4,
+   6
+  ]
+ },
+ "blancos_volumen_ml": {
+  "F18": 3.6,
+  "N13": 2.9
+ },
+ "resumen": {
+  "ok": 9,
+  "total": 9
+ }
+}

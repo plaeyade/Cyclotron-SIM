@@ -1,0 +1,414 @@
+From 02cfc31f8b7a690ee037f786089c900e2a429d5e Mon Sep 17 00:00:00 2001
+From: rpos <rpos@local>
+Date: Wed, 28 Oct 2026 11:25:59 -0600
+Subject: [PATCH 1/5] F81 v3.7.0: ingesta multiformato kiube v0.35 (565
+ artefactos con md5) + verificacion cruzada V04/F75/SRG/KIUBE-OM: 4 supuestos
+ re-etiquetados (append-only), 8 discrepancias cuantificadas; impacto
+ F66/F74/F67/F65/F70 alta; Calibration Layer rechaza origen simulado_declarado
+ (memoria 3); 8 pruebas
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01UsuNxxGDpmcCyJTGFRkq7k
+---
+ CHANGELOG.md                                  |  14 ++
+ docs/fuentes_oficiales_kiube.md               |  22 +++
+ pipelines/ingesta_kiube_v035_f81.py           | 135 ++++++++++++++++++
+ pipelines/test_ingesta_f81.py                 |  61 ++++++++
+ .../app/application/calibration_service.py    |   2 +-
+ .../app/domain/calibration_batch.py           |  13 +-
+ .../app/presentation/routers/equipment_api.py |   3 +-
+ .../yield_engine/app/presentation/schemas.py  |   2 +
+ .../tests/test_calibration_origen_f81.py      |  27 ++++
+ 9 files changed, 276 insertions(+), 3 deletions(-)
+ create mode 100644 pipelines/ingesta_kiube_v035_f81.py
+ create mode 100644 pipelines/test_ingesta_f81.py
+ create mode 100644 services/yield_engine/tests/test_calibration_origen_f81.py
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 0a1fa89..8713cba 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -248,3 +248,17 @@ Todas las versiones siguen semver. Cada fase tiene commit, tag y evidencia en
+ - gas_stripping.PerfilPresion.desde_mapa: acoplamiento mapa→stripping.
+ - Flujos y s de bomba: EST declarados pendiente_fuente. 8 tests (pipelines 91).
+ - Todo simulacion_teorica: no cierra 18.19; PQ no_declarada_nunca (14.9).
++
++## v3.7.0 — 2026-10-28 — Fase 81: ingesta multiformato kiube v0.35 + verificación cruzada V04/F75/SRG/KIUBE-OM
++- pipelines/ingesta_kiube_v035_f81.py: paquete del gemelo kiube v0.35 (565 artefactos: STEP, h5m DAGMC, GDML, STL,
++  3MF/GLB, Molflow XML, mapas npz, curvas JSON, parámetros, telemetría simulada), md5 verificado artefacto a artefacto.
++- Verificación cruzada (22 filas): coinciden radio de cámara 548 mm, 4 bocas r=127 mm @ 375 mm (T04F2/TUD03 → re-etiquetado
++  append-only a `fuente_modelo_oficial_IBA (vía usuario)`), bobinas 2,12 t, masa 17,9 t vs 18 t SRG, 4 ODP, 8 puertos.
++  Discrepancias cuantificadas (sin sobrescribir V04): gap efectivo 132 → 102,6 mm (−22 %), S_eff 7559 → 3565 l/s (−53 %),
++  carga H₂ ×34, pérdida por gas F65 0,00123 % frente a 15 % (TUD03 medido), acero 14,6 → 15,0 t (+3 %), potencia RF del
++  modelo 21,4 kW frente al amplificador de 16 kW (KIUBE-OM), ubicación de bombas (cualitativa).
++- Impacto en cadena (marcas append-only, evidencias originales intactas): F66/F74/F67/F65 y F70 prioridad alta;
++  F71–F78, F75 y F68/F69 prioridad media.
++- Calibration Layer: BatchMeasurement.origen ("real" | "simulado_declarado"); la puerta 17.21 rechaza lo simulado
++  (memoria 3) y lo deja auditado. API: campo `origen` (por defecto "real"). 3 tests nuevos; 5 tests de la fase.
++- Todo simulacion_teorica: no cierra 18.19; PQ no_declarada_nunca (14.9).
+diff --git a/docs/fuentes_oficiales_kiube.md b/docs/fuentes_oficiales_kiube.md
+index 7917c28..f0ecf74 100644
+--- a/docs/fuentes_oficiales_kiube.md
++++ b/docs/fuentes_oficiales_kiube.md
+@@ -163,3 +163,25 @@ con fuente y contexto declarados — no se ajusta ningún parámetro del motor.
+ **Regla aplicada:** toda cifra oficial queda citada con documento, tabla y revisión;
+ nada de esto modifica el estado `pendiente_entorno` de la Producción Clínica (18.19) ni
+ la PQ (14.9).
++
++## 7. Verificación cruzada con el gemelo kiube v0.35 (F81, 2026-10-28)
++
++Registro append-only en `evidencia_v072/fase81/` (las secciones anteriores no se editan). Regla: un `supuesto_declarado`
++sube a `fuente_modelo_oficial_IBA (vía usuario)` solo si coincide dentro de la tolerancia declarada **y** la cota del
++modelo tiene fuente IBA; lo demás se reporta como discrepancia cuantificada.
++
++| Supuesto KIUBE-V04 | Valor V04 | kiube v0.35 | Fuente en el modelo | Resultado |
++|---|---|---|---|---|
++| Radio de cámara | 548 mm | 548 mm | TUP04 Fig. 2 (IBA), ±3 mm | re-etiquetado |
++| N.º de bocas de bombeo | 4 | 4 | TUD03 (IBA); KIUBE-OM Tabla 1-1 (4 ODP) | re-etiquetado |
++| Radio / posición de boca | 127 / 375 mm | 127 / 375 mm | TUP04 Fig. 2 (IBA) | re-etiquetado |
++| Gap efectivo | 132 mm | 102,6 mm (geométrico 112) | CALC (valle 200 mm, PAT16) | discrepancia −22 % |
++| Ubicación de bombas | tapa superior (EST) | 2 bajo la máquina + 2 en carcasas RF | renders DS + EST | discrepancia cualitativa |
++| S_eff (H₂O) | 7559 l/s | 3565 l/s | CALC (TPMC) | discrepancia −53 % |
++| Carga H₂ de la fuente | 1e-3 mbar·l/s | 3,4e-2 mbar·l/s | CALC (calibrada con 81 % medido, TUD03) | discrepancia ×34 |
++
++Inventario F75: acero 14,6 t → 15,0 t (+3 %, cambio de geometría v0.8 → v0.35); bobinas 2,12 t coinciden (Cu 2,00 t de
++IPAC26; 0,12 t de epoxi/agua EST, por eso no se re-etiqueta). SRG: masa 17,9 t / 18 t, altura 1850 mm, envolvente
++2040 × 1920 mm (SRG 2000; ficha DS 1900). KIUBE-OM: 4 ODP y 8 puertos coinciden; la potencia RF que pide el modelo
++(21,4 kW con factor de Q real 0,65 EST) supera el amplificador de 16 kW → el factor EST queda contradicho (con Q ideal:
++15,1 kW).
+diff --git a/pipelines/ingesta_kiube_v035_f81.py b/pipelines/ingesta_kiube_v035_f81.py
+new file mode 100644
+index 0000000..0289179
+--- /dev/null
++++ b/pipelines/ingesta_kiube_v035_f81.py
+@@ -0,0 +1,135 @@
++#!/usr/bin/env python3
++"""F81 — Ingesta multiformato del gemelo kiube v0.35 + verificación cruzada contra KIUBE-V04, F75, SRG y KIUBE-OM.
++
++Entrada: paquete generado en el repositorio kiube (herramientas/paquete_rpos.py → out/rpos_v035/):
++  manifiesto.json (geometría STEP/h5m/GDML/STL/3MF/GLB/Molflow, mapas npz, curvas JSON, parámetros, telemetría simulada;
++  cada artefacto con md5 y metadatos), verificacion_cruzada.json, registro_reetiquetado.jsonl, impacto_cadena.json,
++  telemetria_simulada/.
++Esta fase:
++  1. verifica el md5 de CADA artefacto contra el archivo (integridad; nada se acepta sin hash coincidente);
++  2. incorpora la verificación cruzada SIN reescribir historia: los supuestos KIUBE-V04 no se sobrescriben; el
++     re-etiquetado es un registro append-only (valor y etiqueta anteriores conservados). Solo sube a
++     `fuente_modelo_oficial_IBA (vía usuario)` lo que coincide dentro de la tolerancia declarada Y tiene fuente IBA en
++     el modelo; lo demás se reporta como discrepancia cuantificada (Δ, Δ/ref);
++  3. marca como afectadas (append-only) las fases que dependen de la geometría de cámara (F66/F74/F67, F65) y del voxel
++     (F70 y derivadas), con prioridad; no modifica sus evidencias;
++  4. registra la telemetría simulada como `simulado_declarado`. No entra como medida al Calibration Layer: la puerta
++     17.21 rechaza origen != "real" (memoria 3).
++Reglas canónicas: simulacion_teorica, pq no_declarada_nunca (14.9), cifras con fuente (49.11), append-only ALCOA+,
++recomendación != decisión operacional (18.10).
++Rutas: KIUBE_RAIZ (repo kiube), RPOS_EVIDENCIA (evidencia_v072).
++"""
++import datetime, hashlib, json, os, pathlib
++
++KIUBE = pathlib.Path(os.environ.get("KIUBE_RAIZ", "/mnt/agents/work/kiube_v035/kiube"))
++PAQ = KIUBE / "out/rpos_v035"
++EV = pathlib.Path(os.environ.get("RPOS_EVIDENCIA", "/mnt/agents/work/evidencia_v072"))
++OUT = EV / "fase81"
++ETQ_IBA = "fuente_modelo_oficial_IBA (vía usuario)"
++FASES_CAMARA = {"F66", "F74", "F67", "F65"}
++FASES_VOXEL = {"F70"}
++
++
++def md5(p):
++    h = hashlib.md5()
++    with open(p, "rb") as f:
++        for c in iter(lambda: f.read(1 << 20), b""):
++            h.update(c)
++    return h.hexdigest()
++
++
++def append_unico(path, filas, clave):
++    """Añade filas a un .jsonl sin tocar las existentes (dedup por clave)."""
++    previas = set()
++    if path.exists():
++        previas = {json.loads(l)[clave] for l in path.read_text().splitlines() if l.strip()}
++    n = 0
++    with open(path, "a") as f:
++        for r in filas:
++            if r[clave] in previas:
++                continue
++            f.write(json.dumps(r, ensure_ascii=False, default=float) + "\n"); n += 1
++    return n
++
++
++def ejecutar():
++    OUT.mkdir(parents=True, exist_ok=True)
++    man = json.load(open(PAQ / "manifiesto.json"))
++    # 1) integridad: md5 de cada artefacto
++    malos, faltan, formatos = [], [], {}
++    for a in man["artefactos"]:
++        p = KIUBE / a["ruta"]
++        formatos[a["formato"]] = formatos.get(a["formato"], 0) + 1
++        if not p.exists():
++            faltan.append(a["ruta"]); continue
++        if md5(p) != a["md5"]:
++            malos.append(a["ruta"])
++    # 2) verificación cruzada y re-etiquetado
++    ver = json.load(open(PAQ / "verificacion_cruzada.json"))
++    filas = ver["filas"]
++    reg_k = [json.loads(l) for l in (PAQ / "registro_reetiquetado.jsonl").read_text().splitlines() if l.strip()]
++    for r in reg_k:                                  # coherencia: ningún re-etiquetado sin coincidencia + fuente IBA
++        f = next(x for x in filas if x["id"] == r["id"])
++        if r["accion"] == "re_etiquetado":
++            assert f["veredicto"] == "coincide" and f["fuente_IBA"], r["id"]
++            assert r["etiqueta_nueva"] == ETQ_IBA and r["etiqueta_anterior"].startswith("supuesto_declarado")
++    n_reg = append_unico(OUT / "registro_reetiquetado.jsonl",
++                         [dict(r, fase=81, origen_paquete=man["version"]) for r in reg_k], "clave")
++    # 3) impacto en cadena → marcas append-only
++    imp = json.load(open(PAQ / "impacto_cadena.json"))["afectadas"]
++    hoy = datetime.datetime.now().isoformat(timespec="seconds")
++    marcas = []
++    for x in imp:
++        k = hashlib.md5(json.dumps([x["fase"], x["motivo"]], ensure_ascii=False).encode()).hexdigest()
++        marcas.append(dict(clave=k, fecha=hoy, fase_afectada=x["fase"], prioridad=x["prioridad"], motivo=x["motivo"],
++                           accion_recomendada=x["accion"], estado="afectada_pendiente_re_corrida",
++                           nota="recomendación (18.10); la evidencia original de la fase no se modifica"))
++    n_mar = append_unico(OUT / "marcas_afectacion.jsonl", marcas, "clave")
++    # 4) telemetría simulada declarada
++    tel = json.load(open(PAQ / "telemetria_simulada/telemetria_simulada_meta.json"))
++    csvs = sorted((PAQ / "telemetria_simulada").glob("*.csv"))
++    origen_ok = all(l.rstrip().endswith("simulado_declarado") for c in csvs for l in c.read_text().splitlines()[1:] if l.strip())
++
++    disc = [dict(id=f["id"], parametro=f["parametro"], referencia=f["valor_referencia"], modelo=f["valor_modelo"],
++                 unidad=f["unidad"], delta=f["delta"], delta_rel=f["delta_rel"], nota=f["nota"])
++            for f in filas if f["veredicto"] == "discrepancia"]
++    out = {
++        "fase": 81, "version": "3.7.0", "tipo": "ingesta_verificacion_cruzada", "pq": "no_declarada_nunca",
++        "fecha": hoy, "titulo": "Ingesta multiformato kiube v0.35 + verificación cruzada V04/F75/SRG/KIUBE-OM",
++        "paquete": {"modelo": man["modelo"], "version": man["version"], "md5_manifiesto": md5(PAQ / "manifiesto.json"),
++                    "n_artefactos": man["n_artefactos"], "por_categoria": man["por_categoria"], "por_formato": formatos,
++                    "bytes_total": man["bytes_total"]},
++        "integridad": {"verificados": len(man["artefactos"]) - len(malos) - len(faltan), "md5_distinto": malos,
++                       "faltantes": faltan, "ok": not malos and not faltan},
++        "verificacion": {"n": len(filas),
++                         "coinciden": [f["id"] for f in filas if f["veredicto"] == "coincide"],
++                         "discrepancias": disc,
++                         "no_comparables": [dict(id=f["id"], nota=f["nota"]) for f in filas if f["veredicto"] == "no_comparable"],
++                         "re_etiquetadas": [f["id"] for f in filas if f["re_etiquetar"]],
++                         "regla": ver["regla_reetiquetado"]},
++        "registro": {"nuevas_lineas_reetiquetado": n_reg, "nuevas_marcas_afectacion": n_mar},
++        "impacto": {"afectadas": imp,
++                    "camara_difiere": any(x["fase"] in FASES_CAMARA for x in imp),
++                    "voxel_afectado": any(x["fase"] in FASES_VOXEL for x in imp)},
++        "telemetria_simulada": {"origen": tel["origen"], "csv": [c.name for c in csvs], "origen_por_fila_ok": origen_ok,
++                                "canales": tel["canales"], "calibration_layer": tel["calibration_layer"],
++                                "discrepancia_conocida": tel["discrepancia_conocida"]},
++        "advertencias": [
++            "La telemetría es del gemelo (simulado_declarado), no haz real: memoria 3 intacta; la puerta 17.21 del Calibration Layer rechaza origen != real.",
++            "Re-etiquetar exige coincidencia Y fuente IBA en el modelo; una coincidencia con una cota EST/CALC no confirma nada.",
++            "El canónico RPOS cita KIUBE-SRG rev. F (2019); el modelo kiube usa rev. G (2023). Las cifras comparadas coinciden en ambas revisiones (Tabla 1).",
++            "KIUBE-OM se compara a través de su transcripción en docs/fuentes_oficiales_kiube.md (el documento no está en el repositorio kiube).",
++        ],
++    }
++    json.dump(out, open(OUT / "ingesta_kiube_v035_f81.json", "w"), indent=1, ensure_ascii=False, default=float)
++    with open(EV / "registro_fases.jsonl", "a") as f:
++        f.write(json.dumps({"fase": 81, "version": "3.7.0", "fecha": hoy, "ok_integridad": out["integridad"]["ok"],
++                            "discrepancias": len(disc), "afectadas": [x["fase"] for x in imp]}, ensure_ascii=False) + "\n")
++    return out
++
++
++if __name__ == "__main__":
++    o = ejecutar()
++    print(json.dumps({k: o[k] for k in ("paquete", "integridad", "registro")}, ensure_ascii=False, default=float)[:1500])
++    print("discrepancias:", [(d["id"], d["delta_rel"]) for d in o["verificacion"]["discrepancias"]])
++    print("afectadas:", [(x["fase"], x["prioridad"]) for x in o["impacto"]["afectadas"]])
+diff --git a/pipelines/test_ingesta_f81.py b/pipelines/test_ingesta_f81.py
+new file mode 100644
+index 0000000..4c57d9f
+--- /dev/null
++++ b/pipelines/test_ingesta_f81.py
+@@ -0,0 +1,61 @@
++#!/usr/bin/env python3
++"""Tests F81 — ingesta kiube v0.35 y verificación cruzada (stdlib only)."""
++import json, os, pathlib
++
++EV = pathlib.Path(os.environ.get("RPOS_EVIDENCIA", "/mnt/agents/work/evidencia_v072")) / "fase81"
++E = json.load(open(EV / "ingesta_kiube_v035_f81.json"))
++ETQ = "fuente_modelo_oficial_IBA (vía usuario)"
++
++
++def test_integridad_md5_multiformato():
++    assert E["fase"] == 81 and E["pq"] == "no_declarada_nunca"
++    assert E["integridad"]["ok"] and E["integridad"]["verificados"] == E["paquete"]["n_artefactos"]
++    f = E["paquete"]["por_formato"]
++    for fmt in ("STEP AP214", "DAGMC h5m (MOAB)", "GDML (Geant4)", "STL binario"):
++        assert f.get(fmt, 0) >= 1, fmt
++    assert E["paquete"]["por_categoria"].get("telemetria_simulada", 0) >= 2
++    assert E["paquete"]["por_categoria"].get("curva", 0) >= 5
++    assert len(E["paquete"]["md5_manifiesto"]) == 32
++
++
++def test_reetiquetado_honesto():
++    v = E["verificacion"]
++    # V04: radio de cámara, n.º, radio y posición de bocas coinciden con cotas de fuente IBA (T04F2/TUD03)
++    assert set(v["re_etiquetadas"]) == {"V04-1", "V04-3", "V04-4", "V04-5"}
++    reg = [json.loads(l) for l in (EV / "registro_reetiquetado.jsonl").read_text().splitlines() if l.strip()]
++    for r in reg:
++        if r["accion"] == "re_etiquetado":
++            assert r["etiqueta_nueva"] == ETQ and r["etiqueta_anterior"].startswith("supuesto_declarado")
++            assert r["valor_anterior"] is not None          # el supuesto anterior queda en el registro
++        else:
++            assert r["etiqueta_nueva"] == r["etiqueta_anterior"]   # nada se sobrescribe sin coincidencia + fuente IBA
++
++
++def test_discrepancias_cuantificadas():
++    d = {x["id"]: x for x in E["verificacion"]["discrepancias"]}
++    assert -0.25 < d["V04-2"]["delta_rel"] < -0.15            # gap efectivo 132 → ~103 mm
++    assert d["V04-7"]["delta_rel"] < -0.4                       # S_eff
++    assert d["V04-11"]["delta_rel"] > 100                       # pérdida por gas: F65 frente a la medida de IBA
++    assert 0.0 < d["F75-1"]["delta_rel"] < 0.05                 # acero 14.6 → 15.0 t
++    assert "OM-3" in d                                          # amplificador 16 kW frente a la potencia del modelo
++    for x in d.values():
++        assert x["delta"] is not None and x["delta_rel"] is not None
++    assert "F75-2" in E["verificacion"]["coinciden"]            # bobinas 2.12 t
++    assert any(x["id"] == "V04-6" for x in E["verificacion"]["no_comparables"])
++
++
++def test_impacto_en_cadena():
++    i = E["impacto"]
++    assert i["camara_difiere"] and i["voxel_afectado"]
++    alta = {x["fase"] for x in i["afectadas"] if x["prioridad"] == "alta"}
++    assert {"F66", "F74", "F70"} <= alta
++    marcas = [json.loads(l) for l in (EV / "marcas_afectacion.jsonl").read_text().splitlines() if l.strip()]
++    assert {m["fase_afectada"] for m in marcas} >= {"F66", "F74", "F70"}
++    assert all(m["estado"] == "afectada_pendiente_re_corrida" for m in marcas)
++
++
++def test_telemetria_simulada_declarada():
++    t = E["telemetria_simulada"]
++    assert t["origen"] == "simulado_declarado" and t["origen_por_fila_ok"]
++    assert "fit_factor" in t["calibration_layer"]["uso_prohibido"]
++    assert any("memoria 3" in a for a in E["advertencias"])
+diff --git a/services/yield_engine/app/application/calibration_service.py b/services/yield_engine/app/application/calibration_service.py
+index 642c544..7204132 100644
+--- a/services/yield_engine/app/application/calibration_service.py
++++ b/services/yield_engine/app/application/calibration_service.py
+@@ -172,7 +172,7 @@ class CalibrationService:
+             "eob_predicho_gbq": medida.eob_predicho_gbq,
+             "eob_medido_gbq": medida.eob_medido_gbq,
+             "incertidumbre_gbq": medida.incertidumbre_gbq,
+-            "operador": medida.operador, "k": gate["k"]}
++            "operador": medida.operador, "origen": medida.origen, "k": gate["k"]}
+         self._audit.append({
+             "fecha": datetime.now(timezone.utc).isoformat(),
+             "usuario": medida.operador, "accion": "registro_medida_lote",
+diff --git a/services/yield_engine/app/domain/calibration_batch.py b/services/yield_engine/app/domain/calibration_batch.py
+index 1074816..32503aa 100644
+--- a/services/yield_engine/app/domain/calibration_batch.py
++++ b/services/yield_engine/app/domain/calibration_batch.py
+@@ -12,7 +12,10 @@ predefinida: "No todas las producciones se incorporan automáticamente"
+   - incertidumbre relativa declarada ≤ 25 % (calidad de la medida);
+   - coherencia física del cociente: 0.1 ≤ k ≤ 10 (un factor fuera de ese
+     rango indica error de registro o de unidades, no física real);
+-  - batch_id y operador no vacíos (trazabilidad 17.22/17.25).
++  - batch_id y operador no vacíos (trazabilidad 17.22/17.25);
++  - origen == "real" (F81, memoria 3): un dato simulado declarado del gemelo
++    (origen="simulado_declarado") nunca entra al ajuste como medida de lote,
++    aunque sea numéricamente válido; queda en auditoría como rechazado.
+ """
+ from __future__ import annotations
+ 
+@@ -22,6 +25,8 @@ K_MIN: float = 0.1
+ K_MAX: float = 10.0
+ U_REL_MAX: float = 0.25
+ ALGORITMO: str = "k_batch=medido/predicho; WLS en fit posterior (fit_factor)"
++ORIGEN_REAL: str = "real"
++ORIGENES: tuple = ("real", "simulado_declarado")
+ 
+ 
+ @dataclass(frozen=True)
+@@ -33,6 +38,7 @@ class BatchMeasurement:
+     eob_medido_gbq: float            # actividad EOB medida en el lote
+     incertidumbre_gbq: float = 0.0   # u experimental del medido (0 = no declarada)
+     operador: str = ""               # quién registra la medida (17.22)
++    origen: str = ORIGEN_REAL        # "real" | "simulado_declarado" (F81, memoria 3)
+ 
+ 
+ def batch_k_factor(eob_medido_gbq: float, eob_predicho_gbq: float) -> float:
+@@ -57,6 +63,11 @@ def quality_gate(m: BatchMeasurement) -> dict:
+         reasons.append("eob_medido_gbq debe ser > 0")
+     if m.incertidumbre_gbq < 0.0:
+         reasons.append("incertidumbre_gbq no puede ser negativa")
++    if m.origen not in ORIGENES:
++        reasons.append(f"origen desconocido {m.origen!r}: debe ser uno de {ORIGENES}")
++    elif m.origen != ORIGEN_REAL:
++        reasons.append("dato simulado declarado (gemelo): no es medida de haz real y no "
++                       "entra al ajuste del Calibration Layer (memoria 3)")
+     k: float | None = None
+     if m.eob_predicho_gbq > 0.0 and m.eob_medido_gbq > 0.0:
+         k = batch_k_factor(m.eob_medido_gbq, m.eob_predicho_gbq)
+diff --git a/services/yield_engine/app/presentation/routers/equipment_api.py b/services/yield_engine/app/presentation/routers/equipment_api.py
+index 3668bfc..26c311e 100644
+--- a/services/yield_engine/app/presentation/routers/equipment_api.py
++++ b/services/yield_engine/app/presentation/routers/equipment_api.py
+@@ -137,7 +137,8 @@ def register_batch_measurement(req: BatchMeasurementIn) -> BatchMeasurementOut:
+         batch_id=req.batch_id, fecha=req.fecha,
+         eob_predicho_gbq=req.eob_predicho_gbq,
+         eob_medido_gbq=req.eob_medido_gbq,
+-        incertidumbre_gbq=req.incertidumbre_gbq, operador=req.operador)
++        incertidumbre_gbq=req.incertidumbre_gbq, operador=req.operador,
++        origen=req.origen)
+     try:
+         r = _cal.register_batch_measurement(
+             req.reaction_id, req.equipment_id, medida, motivo=req.motivo)
+diff --git a/services/yield_engine/app/presentation/schemas.py b/services/yield_engine/app/presentation/schemas.py
+index 77c7dc8..42ac51d 100644
+--- a/services/yield_engine/app/presentation/schemas.py
++++ b/services/yield_engine/app/presentation/schemas.py
+@@ -315,6 +315,7 @@ class BatchMeasurementIn(BaseModel):
+     incertidumbre_gbq: float = Field(0.0, ge=0)
+     operador: str = Field(..., min_length=1)
+     motivo: str = Field("", description="motivo del registro (auditoría 17.25)")
++    origen: str = Field("real", description='"real" | "simulado_declarado" (F81, memoria 3: lo simulado no entra al ajuste)')
+ 
+ 
+ class BatchMeasurementOut(BaseModel):
+@@ -326,6 +327,7 @@ class BatchMeasurementOut(BaseModel):
+     eob_medido_gbq: float
+     incertidumbre_gbq: float
+     operador: str
++    origen: str = "real"
+     k: float | None
+     accepted: bool
+     reasons: list[str]
+diff --git a/services/yield_engine/tests/test_calibration_origen_f81.py b/services/yield_engine/tests/test_calibration_origen_f81.py
+new file mode 100644
+index 0000000..33301a4
+--- /dev/null
++++ b/services/yield_engine/tests/test_calibration_origen_f81.py
+@@ -0,0 +1,27 @@
++"""F81 — puerta de origen del Calibration Layer (memoria 3): la telemetría simulada declarada del gemelo nunca entra
++al ajuste como medida de lote real, aunque sea numéricamente válida."""
++from app.domain.calibration_batch import BatchMeasurement, quality_gate
++
++
++def _m(**kw):
++    base = dict(batch_id="L-0001", fecha="2026-10-28", eob_predicho_gbq=300.0, eob_medido_gbq=280.0,
++                incertidumbre_gbq=10.0, operador="op1")
++    base.update(kw)
++    return BatchMeasurement(**base)
++
++
++def test_real_por_defecto_se_acepta():
++    g = quality_gate(_m())
++    assert g["accepted"] and g["reasons"] == []
++
++
++def test_simulado_declarado_se_rechaza_con_motivo():
++    g = quality_gate(_m(origen="simulado_declarado"))
++    assert not g["accepted"]
++    assert any("memoria 3" in r for r in g["reasons"])
++    assert g["k"] is not None            # el cociente se calcula y queda en auditoría, pero no entra al ajuste
++
++
++def test_origen_desconocido_se_rechaza():
++    g = quality_gate(_m(origen="estimado"))
++    assert not g["accepted"] and any("origen desconocido" in r for r in g["reasons"])
+-- 
+2.43.0
+

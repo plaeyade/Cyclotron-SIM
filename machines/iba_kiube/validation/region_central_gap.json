@@ -1,0 +1,48 @@
+{
+ "gap_mm": [
+  2.0,
+  2.3,
+  2.6,
+  2.8,
+  3.2
+ ],
+ "transmision_pct": [
+  14.75,
+  18.25,
+  21.5,
+  19.5,
+  19.25
+ ],
+ "error_pct": [
+  1.7730182599172517,
+  1.9312803395675107,
+  2.054111730164647,
+  1.981003533565753,
+  1.9713177699194007
+ ],
+ "perdida_metal_pct": [
+  62.0,
+  57.0,
+  54.5,
+  52.5,
+  47.5
+ ],
+ "perdida_z_pct": [
+  23.25,
+  24.75,
+  24.0,
+  28.0,
+  33.25
+ ],
+ "descentrado_medio_mm": [
+  8.515039201258379,
+  8.893906683681864,
+  9.13038525375512,
+  8.940809920841462,
+  9.489137184136762
+ ],
+ "optimo_gap_mm": 2.786840938056367,
+ "optimo_transmision_pct": 20.627247077130285,
+ "elegido_mm": 2.8,
+ "nota": "preset kiube, malla fina, 6 vueltas, 400 part\u00edculas, fuente r 12.5 a ~40\u00b0 del borde de entrada (mapa IBA); 3.2 a 40.8\u00b0; techo por aceptancia \u2248 105/120 = 87 % (las part\u00edculas se lanzan en la ventana aceptada \u00b110\u00b0; corregido en v0.24)"
+}

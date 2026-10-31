@@ -1,0 +1,163 @@
+{
+ "trayectorias_VE24": [
+  {
+   "T_MeV": 18.0,
+   "sistema": 0,
+   "r_m": 0.6,
+   "ibA": 8.7,
+   "modelo": 5.91,
+   "dif": -2.79
+  },
+  {
+   "T_MeV": 18.0,
+   "sistema": 0,
+   "r_m": 0.7,
+   "ibA": 13.6,
+   "modelo": 12.09,
+   "dif": -1.51
+  },
+  {
+   "T_MeV": 18.0,
+   "sistema": 0,
+   "r_m": 0.82,
+   "ibA": 17.7,
+   "modelo": 17.19,
+   "dif": -0.51
+  },
+  {
+   "T_MeV": 18.0,
+   "sistema": 1,
+   "r_m": 0.6,
+   "ibA": 32.2,
+   "modelo": 30.85,
+   "dif": -1.35
+  },
+  {
+   "T_MeV": 18.0,
+   "sistema": 1,
+   "r_m": 0.7,
+   "ibA": 38.3,
+   "modelo": 38.43,
+   "dif": 0.13
+  },
+  {
+   "T_MeV": 18.0,
+   "sistema": 1,
+   "r_m": 0.82,
+   "ibA": 42.9,
+   "modelo": 44.52,
+   "dif": 1.62
+  },
+  {
+   "T_MeV": 13.0,
+   "sistema": 0,
+   "r_m": 0.6,
+   "ibA": 8.1,
+   "modelo": 5.39,
+   "dif": -2.71
+  },
+  {
+   "T_MeV": 13.0,
+   "sistema": 0,
+   "r_m": 0.7,
+   "ibA": 10.0,
+   "modelo": 7.66,
+   "dif": -2.34
+  },
+  {
+   "T_MeV": 13.0,
+   "sistema": 0,
+   "r_m": 0.82,
+   "ibA": 11.4,
+   "modelo": 9.64,
+   "dif": -1.76
+  },
+  {
+   "T_MeV": 13.0,
+   "sistema": 1,
+   "r_m": 0.7,
+   "ibA": 35.9,
+   "modelo": 33.94,
+   "dif": -1.96
+  },
+  {
+   "T_MeV": 13.0,
+   "sistema": 1,
+   "r_m": 0.82,
+   "ibA": 38.2,
+   "modelo": 37.04,
+   "dif": -1.16
+  }
+ ],
+ "trayectorias_VE24_max_abs_dif_deg": 2.79,
+ "energia_variable": [
+  {
+   "T_MeV": 13.0,
+   "r_strip_mm": 399.2,
+   "horquilla_extra_mm": 70.6,
+   "dphi_stripper_deg": -0.97,
+   "cuna_deg": -20.96,
+   "cruce_820_dphi_hill": 37.04
+  },
+  {
+   "T_MeV": 14.0,
+   "r_strip_mm": 414.2,
+   "horquilla_extra_mm": 55.7,
+   "dphi_stripper_deg": -0.53,
+   "cuna_deg": -17.99,
+   "cruce_820_dphi_hill": 37.98
+  },
+  {
+   "T_MeV": 15.0,
+   "r_strip_mm": 428.7,
+   "horquilla_extra_mm": 41.1,
+   "dphi_stripper_deg": -0.47,
+   "cuna_deg": -13.24,
+   "cruce_820_dphi_hill": 39.58
+  },
+  {
+   "T_MeV": 16.0,
+   "r_strip_mm": 442.9,
+   "horquilla_extra_mm": 26.9,
+   "dphi_stripper_deg": -0.37,
+   "cuna_deg": -8.57,
+   "cruce_820_dphi_hill": 41.18
+  },
+  {
+   "T_MeV": 17.0,
+   "r_strip_mm": 456.5,
+   "horquilla_extra_mm": 13.3,
+   "dphi_stripper_deg": -0.16,
+   "cuna_deg": -4.3,
+   "cruce_820_dphi_hill": 42.79
+  }
+ ],
+ "energia_variable_cabe_en_puerto_13MeV": [
+  {
+   "sistema": 0,
+   "desplazamiento_mm": -107.8,
+   "semiancho_mm": 71.5,
+   "cabe": false
+  },
+  {
+   "sistema": 1,
+   "desplazamiento_mm": -106.7,
+   "semiancho_mm": 125.0,
+   "cabe": true
+  }
+ ],
+ "campo_KEY22": {
+  "Bavg_modelo_G": 13315.5,
+  "Bavg_IBA_r038_047_G": 13252.7,
+  "flutter_modelo": 0.407,
+  "flutter_IBA_r038_047": 0.394,
+  "flutter_IBA_max": 0.401
+ },
+ "bobinas_IPAC26": {
+  "cobre_t": 2.0,
+  "cobre_IPAC26_t": 2.0,
+  "potencia_bobinas_kW_con_NI": 15.9,
+  "potencia_total_IPAC26_kW": 19.0,
+  "J_A_mm2": 1.96
+ }
+}

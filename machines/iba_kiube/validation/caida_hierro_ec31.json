@@ -1,0 +1,21 @@
+{
+ "ecuacion": "CAS 2017 Ec. 31: NI_tot ≈ g·B_gap/μ0 + término del hierro",
+ "C18_9": {
+  "NI_publicado": 112000,
+  "termino_gap": 45359,
+  "fraccion_hierro": 0.595,
+  "fuente": "CU-08 (112 kA·v), CM06 (1.9 T, 30 mm)"
+ },
+ "KIUBE": {
+  "termino_gap": 41062,
+  "NI_si_hierro_como_C18_9": 101389,
+  "NI_potencia_IPAC26": 105000,
+  "NI_FE_curva1010": 170000,
+  "fraccion_hierro_FE_1010": 0.758,
+  "fraccion_hierro_potencia": 0.609,
+  "NI_FE_calibrado_v018": 116000,
+  "fraccion_hierro_FE_calibrado": 0.63
+ },
+ "conclusion": "Con la misma caída en el hierro que el C18/9 (≈60 %), el KIUBE necesitaría ≈ 101 kA·v, en línea con los ≈105 kA·v que da la potencia publicada (IPAC26). El FE con la curva 1010 representativa pide 170 kA·v (76 % de caída en el hierro): la curva BH genérica satura demasiado; el acero de IBA (curvas medidas con permeámetro propio, CAS §5.3) satura menos.",
+ "conclusion_v018": "FE calibrado (acero J_s 2.12 T, tapa 181, valle 95): 116 kA·v con el 63 % de la fuerza magnetomotriz en el hierro (Ampère por tramos), coherente con el ≈60 % del C18/9."
+}

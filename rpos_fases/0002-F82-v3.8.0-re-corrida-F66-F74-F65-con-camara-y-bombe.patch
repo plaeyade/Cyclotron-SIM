@@ -1,0 +1,454 @@
+From e78b80d40346b3138c4438d4cf4d6830d1c8b203 Mon Sep 17 00:00:00 2001
+From: rpos <rpos@local>
+Date: Wed, 28 Oct 2026 12:26:10 -0600
+Subject: [PATCH 2/5] F82 v3.8.0: re-corrida F66/F74/F65 con camara y bombeo
+ kiube v0.35 (gap 102.6 mm, 2 ODP abajo + 2 en carcasas RF, H2O+H2): P_H2O
+ 2.9e-7 (IBA 2.7e-7), S_eff 3672 l/s, perdida gas 8.6-13.5% vs 19% medido;
+ CORRECCION MBAR_A_PA 0.1->100 (perdidas F65/F66 1000x bajas, registro
+ append-only); 6 pruebas
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01UsuNxxGDpmcCyJTGFRkq7k
+---
+ CHANGELOG.md                                  |  16 ++
+ pipelines/test_perdida_gas_f65.py             |   5 +-
+ pipelines/test_vacio_f66.py                   |   3 +-
+ pipelines/test_vacio_f82.py                   |  57 +++++
+ pipelines/vacio_v035_f82.py                   | 209 ++++++++++++++++++
+ .../yield_engine/app/domain/gas_stripping.py  |   2 +-
+ .../yield_engine/app/domain/vacuum_tpmc.py    |  37 +++-
+ 7 files changed, 316 insertions(+), 13 deletions(-)
+ create mode 100644 pipelines/test_vacio_f82.py
+ create mode 100644 pipelines/vacio_v035_f82.py
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 8713cba..31d12c8 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -262,3 +262,19 @@ Todas las versiones siguen semver. Cada fase tiene commit, tag y evidencia en
+ - Calibration Layer: BatchMeasurement.origen ("real" | "simulado_declarado"); la puerta 17.21 rechaza lo simulado
+   (memoria 3) y lo deja auditado. API: campo `origen` (por defecto "real"). 3 tests nuevos; 5 tests de la fase.
+ - Todo simulacion_teorica: no cierra 18.19; PQ no_declarada_nunca (14.9).
++
++## v3.8.0 — 2026-10-28 — Fase 82: re-corrida F66/F74/F65 con cámara y bombeo kiube v0.35 + corrección de unidades
++- pipelines/vacio_v035_f82.py: gap efectivo 102,6 mm; 4 ODP en los agujeros de valle (2 difusoras abajo, 2 en
++  carcasas RF, EST); brida (H₂O 1300 / H₂ 2000 l/s, EST) en serie con el agujero A+C (Clausing 0,42); cargas H₂O 5,2e-4
++  (10 h) y H₂ 2 sccm. Dos gases, 600k moléculas cada uno. Entradas verificadas por md5 contra el manifiesto F81.
++- F66 (TPMC): H₂O 2,9e-7 mbar (medida IBA con RF: 2,7e-7, +8 %); H₂ 1,6e-5 (centro) → 1,0e-5 mbar (pared).
++- F74 (analítico): S_eff H₂O 3672 l/s (V04: 7559), H₂ 6588 l/s; TPMC/Q/S = 2,0–2,2 por la conductancia del gap fino.
++- F65 (stripping): pérdida por gas 8,6 % (2 sccm) y 13,5 % (3,5 sccm, AMIT) frente al 19 % de pérdida total medido por
++  IBA (TUD03; kiube atribuye 15 % al gas).
++- CORRECCIÓN: gas_stripping.MBAR_A_PA = 0,1 → 100 (1 mbar = 100 Pa). Todas las pérdidas por gas de F65/F66 eran 1000×
++  bajas (F66: 0,00123 % → 1,23 % con V04). Evidencias históricas intactas; registro append-only en
++  fase82/correcciones_historicas.jsonl (precedente F73). vacuum_tpmc: dos factores de unidades que se compensaban se
++  escriben explícitos (presiones idénticas). Rangos de 2 pruebas vivas de F65/F66 corregidos.
++- vacuum_tpmc.CamaraVacio.bombas: bombas configurables (posición, tapa, radio, captura); por defecto, la disposición V04
++  (regresión bit a bit). F67 (Molflow+) sigue afectada y pendiente. 6 pruebas nuevas.
++- Todo simulacion_teorica: no cierra 18.19; PQ no_declarada_nunca (14.9).
+diff --git a/pipelines/test_perdida_gas_f65.py b/pipelines/test_perdida_gas_f65.py
+index 3b11702..cad0a0a 100644
+--- a/pipelines/test_perdida_gas_f65.py
++++ b/pipelines/test_perdida_gas_f65.py
+@@ -41,11 +41,12 @@ def test_perdida_monotona_en_presion():
+ 
+ 
+ def test_perdida_en_rango_fisico():
+-    # nominal 3e-7 mbar: pérdida del orden de 1e-5 – 1e-3 (0,001–0,1 %)
++    # nominal 3e-7 mbar: pérdida del orden de 1e-3 – 1e-1 (0,1–10 %). F82: hasta v3.7.0 el rango esperado era
++    # 1e-5 – 1e-3 porque MBAR_A_PA valía 0,1 (1 mbar = 100 Pa); la evidencia histórica de F65 no se reescribe.
+     r = simular_perdida_gas(corriente_ua=200, energia_final_mev=18.0,
+                             delta_e_kev_vuelta=98.5, b_media_t=1.360,
+                             perfil=PerfilPresion(3e-7))
+-    assert 1e-5 < r.fraccion_perdida < 1e-3
++    assert 1e-3 < r.fraccion_perdida < 1e-1
+     assert r.potencia_perdida_w > 0
+ 
+ 
+diff --git a/pipelines/test_vacio_f66.py b/pipelines/test_vacio_f66.py
+index 53715d7..820a2bb 100644
+--- a/pipelines/test_vacio_f66.py
++++ b/pipelines/test_vacio_f66.py
+@@ -64,7 +64,8 @@ def test_perdida_con_mapa_coherente():
+     r = simular_perdida_gas(corriente_ua=200, energia_final_mev=18.0,
+                             delta_e_kev_vuelta=98.5, b_media_t=1.360,
+                             perfil=pf)
+-    assert 1e-6 < r.fraccion_perdida < 1e-3
++    # F82: corregida la conversión mbar → Pa (×1000); antes 1e-6 – 1e-3
++    assert 1e-3 < r.fraccion_perdida < 1e-1
+ 
+ 
+ def test_f66_json_coherente():
+diff --git a/pipelines/test_vacio_f82.py b/pipelines/test_vacio_f82.py
+new file mode 100644
+index 0000000..4d2616f
+--- /dev/null
++++ b/pipelines/test_vacio_f82.py
+@@ -0,0 +1,57 @@
++#!/usr/bin/env python3
++"""Tests F82 — re-corrida F66/F74/F65 con la cámara y el bombeo de kiube v0.35."""
++import json, os, pathlib, sys
++
++ROOT = pathlib.Path(__file__).resolve().parents[1]
++sys.path.insert(0, str(ROOT / "services" / "yield_engine"))
++for _m in [k for k in list(sys.modules) if k == "app" or k.startswith("app.")]:
++    del sys.modules[_m]
++from app.domain.gas_stripping import MBAR_A_PA, densidad_gas_cm3            # noqa: E402
++
++EV = pathlib.Path(os.environ.get("RPOS_EVIDENCIA", "/mnt/agents/work/evidencia_v072")) / "fase82"
++E = json.load(open(EV / "vacio_v035_f82.json"))
++
++
++def test_unidades_mbar_pa():
++    assert MBAR_A_PA == 100.0
++    # 1e-6 mbar a 293 K ≈ 2,5e10 moléculas/cm³ (valor de libro)
++    assert 2.3e10 < densidad_gas_cm3(1e-6, 293.15) < 2.6e10
++
++
++def test_entradas_v035_y_trazabilidad():
++    e = E["entradas"]
++    assert abs(e["gap_mm"] - 102.6) < 0.5 and e["r_cam"] == 548.0 and e["r_boca"] == 127.0
++    assert all(len(h) == 32 for h in e["md5"].values())
++    lados = sorted(b["lado"] for b in E["F66_tpmc"]["H2O"]["bombas"])
++    assert lados == [-1, -1, 1, 1]                                   # 2 abajo (difusoras) + 2 arriba (carcasas RF)
++
++
++def test_bombeo_analitico_coherente_con_kiube():
++    for g in ("S_H2O_l_s", "S_H2_l_s"):
++        f82, kiube = E["consistencia_con_kiube"][g]
++        assert abs(f82 / kiube - 1) < 0.05
++
++
++def test_tpmc_vs_analitico_y_medida():
++    for g in ("H2O", "H2"):
++        a = E["F74_analitico"][g]
++        assert 1.0 < a["tpmc_media_sobre_analitica"] < 3.0             # el gap fino añade resistencia de conductancia
++        assert abs(E["F66_tpmc"][g]["captura_media_tpmc"] / a["s_captura"] - 1) < 0.05
++    assert 0.7 < E["comparacion_V04"]["P_H2O_tpmc_sobre_medida_TUD03T"] < 1.5
++
++
++def test_stripping_frente_a_medida_iba():
++    s = E["F65_stripping"]
++    assert 0.03 < s["KIUBE180_180uA"]["fraccion_perdida"] < 0.25      # IBA: 19 % de pérdida total (TUD03)
++    assert s["sensibilidad_H2_3p5sccm_AMIT_pct"] > s["KIUBE180_180uA"]["pct"]
++    c = E["comparacion_V04"]
++    assert c["factor_por_unidades"] == 1000.0 and c["factor_por_geometria_bombeo_y_carga_v035"] > 1
++
++
++def test_registros_append_only():
++    corr = [json.loads(l) for l in (EV / "correcciones_historicas.jsonl").read_text().splitlines() if l.strip()]
++    assert any(c["fase"] == "F65" and c["factor"] == 1000.0 for c in corr)
++    res = [json.loads(l) for l in (EV / "resolucion_marcas_f81.jsonl").read_text().splitlines() if l.strip()]
++    est = {r["fase_afectada"]: r["estado"] for r in res}
++    assert est["F66"] == est["F74"] == est["F65"] == "re_corrida_en_F82"
++    assert est["F67"] == "afectada_pendiente_re_corrida"
+diff --git a/pipelines/vacio_v035_f82.py b/pipelines/vacio_v035_f82.py
+new file mode 100644
+index 0000000..f86f892
+--- /dev/null
++++ b/pipelines/vacio_v035_f82.py
+@@ -0,0 +1,209 @@
++#!/usr/bin/env python3
++"""F82 — Re-corrida de F66 (TPMC), F74 (analítico Chiggiato) y F65 (stripping en gas) con la cámara y el bombeo del
++gemelo kiube v0.35 (marcas de afectación de F81). Las evidencias de F66/F74/F65 NO se tocan: esta fase escribe la suya
++y deja la comparación V04 → v0.35 cuantificada.
++
++Entradas (kiube v0.35, verificadas por md5 contra el manifiesto de F81):
++  - gap efectivo de cámara 102,6 mm (validation/gap_efectivo_camara.json; V04: 132);
++  - 4 bombas ODP en los agujeros de valle (r = 127 mm a r = 375 mm, T04F2): 2 difusoras bajo la máquina (az 0° y 180°,
++    tapa inferior; renders DS) + 2 en las carcasas RF (az 90° y 270°, tapa superior; ubicación EST). V04: 4 bocas a 45°
++    (sobre las colinas) en ambas tapas;
++  - bombeo por bomba: brida (H₂O 1300 l/s, H₂ 2000 l/s; EST) en serie con el agujero A+C (Clausing 0,42, CALC);
++  - cargas de gas: H₂O de paredes y juntas a 10 h 5,2e-4 mbar·l/s (CERN-CH con acero ×30 calibrado al bombeo medido de
++    TUD03T) y H₂ de la fuente 2 sccm = 3,4e-2 mbar·l/s (EST; AMIT usa 3,5 sccm). V04: 2,3e-6 + 1e-3 mbar·l/s.
++Dos gases → dos corridas TPMC (H₂O m = 18, H₂ m = 2,016) y suma de presiones. Stripping: σ ∝ 1/β² para todos los gases
++(PLUM-CYR), así que la mezcla se reduce a una presión H₂-equivalente P_H2 + (σ_Nakhai/σ_H2)·P_H2O.
++Contraste independiente: transmisión fuente→stripper medida por IBA 81 % (TUD03), de la que kiube atribuye 15 % al gas.
++Reglas: simulacion_teorica, pq no_declarada_nunca, append-only, 18.10, memoria 3 (sin haz real).
++Rutas: KIUBE_RAIZ, RPOS_EVIDENCIA.
++"""
++from __future__ import annotations
++import datetime, hashlib, json, math, os, pathlib, sys
++
++ROOT = pathlib.Path(__file__).resolve().parents[1]
++sys.path.insert(0, str(ROOT / "services" / "yield_engine"))
++for _m in [k for k in list(sys.modules) if k == "app" or k.startswith("app.")]:
++    del sys.modules[_m]
++from app.domain.vacuum_tpmc import CamaraVacio, simular_mapa_presion, R_GAS        # noqa: E402
++from app.domain.gas_stripping import (PerfilPresion, simular_perdida_gas, sigma_mezcla_cm2,   # noqa: E402
++                                      sigma_molecula_cm2, COMPOSICION_RESIDUAL_NAKHAI)
++
++KIUBE = pathlib.Path(os.environ.get("KIUBE_RAIZ", "/mnt/agents/work/kiube_v035/kiube"))
++EV = pathlib.Path(os.environ.get("RPOS_EVIDENCIA", "/mnt/agents/work/evidencia_v072"))
++OUT = EV / "fase82"
++N_MOL = int(os.environ.get("F82_N_MOL", "600000"))
++T_K = 293.15
++SCCM = 0.016887                   # mbar·l/s por sccm a 0 °C/1013 mbar (definición)
++
++
++def md5(p):
++    h = hashlib.md5()
++    with open(p, "rb") as f:
++        for c in iter(lambda: f.read(1 << 20), b""):
++            h.update(c)
++    return h.hexdigest()
++
++
++def v_media_cm_s(m_g_mol):
++    return math.sqrt(8 * R_GAS * T_K / (math.pi * m_g_mol / 1000.0)) * 100.0
++
++
++def entradas():
++    import yaml
++    man = {a["ruta"]: a["md5"] for a in json.load(open(KIUBE / "out/rpos_v035/manifiesto.json"))["artefactos"]}
++    usados = ["params.yaml", "validation/gap_efectivo_camara.json", "out/vacuum/report.json"]
++    for r in usados:
++        assert md5(KIUBE / r) == man[r], f"md5 de {r} no coincide con el manifiesto F81"
++    P = yaml.safe_load(open(KIUBE / "params.yaml"))
++    gap = json.load(open(KIUBE / "validation/gap_efectivo_camara.json"))
++    rep = json.load(open(KIUBE / "out/vacuum/report.json"))["presion"]
++    vac = P["vacuum"]
++    return dict(
++        md5={r: man[r] for r in usados},
++        gap_mm=gap["gap_efectivo_mm"], r_cam=P["vacuum_chamber"]["inner_radius"]["v"],
++        r_boca=P["yoke"]["pump_hole_radius"]["v"], r_pos=P["yoke"]["pump_hole_r_pos"]["v"],
++        W=vac["port_transmission"]["v"], S_brida={"H2O": vac["pump_speed_H2O_l_s"]["v"], "H2": vac["pump_speed_l_s"]["v"]},
++        Q_H2O=rep["Q_H2O_10h_mbar_l_s"], Q_H2=vac["h2_sccm_per_active_source"]["v"] * SCCM,
++        sccm=vac["h2_sccm_per_active_source"]["v"], S_kiube={"H2O": rep["S_eff_H2O_l_s"], "H2": rep["S_eff_H2_l_s"]},
++        P_kiube={"H2O_10h": rep["P_H2O_10h_mbar"], "H2_operacion": rep["P_H2_operacion_mbar"]},
++        perdida_gas_kiube=vac["gas_loss_fraction"]["v"], P_base_medida=vac["P_base_measured_mbar"]["v"])
++
++
++def bombas(E, gas, m):
++    A = math.pi * (E["r_boca"] / 10) ** 2
++    C_ap = A * v_media_cm_s(m) / 4 / 1000.0                          # l/s, apertura ideal
++    S_p = 1.0 / (1.0 / E["S_brida"][gas] + 1.0 / (C_ap * E["W"]))   # brida en serie con el agujero A+C
++    s = S_p / C_ap
++    lst = []
++    for az, lado, quien in ((0, -1, "difusora bajo la máquina"), (180, -1, "difusora bajo la máquina"),
++                            (90, +1, "carcasa RF (EST)"), (270, +1, "carcasa RF (EST)")):
++        lst.append(dict(x_mm=E["r_pos"] * math.cos(math.radians(az)), y_mm=E["r_pos"] * math.sin(math.radians(az)),
++                        lado=lado, r_mm=E["r_boca"], s=s, az_deg=az, ubicacion=quien))
++    return lst, dict(C_apertura_l_s=C_ap, S_bomba_l_s=S_p, s_captura=s, S_total_l_s=4 * S_p)
++
++
++def ejecutar():
++    OUT.mkdir(parents=True, exist_ok=True)
++    E = entradas()
++    res = {}
++    for gas, m, Q in (("H2O", 18.015, E["Q_H2O"]), ("H2", 2.016, E["Q_H2"])):
++        b, an = bombas(E, gas, m)
++        area = 2 * math.pi * (E["r_cam"] / 10) ** 2 + 2 * math.pi * (E["r_cam"] / 10) * (E["gap_mm"] / 10)
++        cam = CamaraVacio(r_pared_mm=E["r_cam"], gap_mm=E["gap_mm"], n_bombas=4, r_bomba_mm=E["r_boca"],
++                          r_pos_bomba_mm=E["r_pos"], s_captura=an["s_captura"],
++                          q_pared_mbar_l_s_cm2=(Q / area if gas == "H2O" else 0.0),
++                          q_h2_fuentes_total_mbar_l_s=(Q if gas == "H2" else 0.0),
++                          masa_gas_g_mol=m, temperatura_k=T_K,
++                          bombas=tuple({k: v for k, v in x.items() if k in ("x_mm", "y_mm", "lado", "r_mm", "s")} for x in b))
++        mapa = simular_mapa_presion(cam, n_moleculas=N_MOL, n_bins_r=20)
++        mapa.pop("fuentes", None)
++        mapa["camara"] = {k: v for k, v in mapa["camara"].items() if k != "bombas"}
++        res[gas] = dict(mapa=mapa, bombas=b, analitico=an, Q_mbar_l_s=Q,
++                        P_eq_analitica_mbar=Q / an["S_total_l_s"],
++                        P_media_tpmc_mbar=sum(mapa["p_mbar"]) / len(mapa["p_mbar"]),
++                        captura_tpmc=mapa["absorbidos"] / max(mapa["hits_bomba"], 1))
++    r_mm = res["H2"]["mapa"]["r_mm"]
++    P_tot = [a + b for a, b in zip(res["H2O"]["mapa"]["p_mbar"], res["H2"]["mapa"]["p_mbar"])]
++    # F65 con el perfil v0.35: presión H2-equivalente (σ ∝ 1/β² para todos los gases)
++    k_sig = sigma_mezcla_cm2(COMPOSICION_RESIDUAL_NAKHAI, 18.0) / sigma_molecula_cm2("H2", 18.0)
++    P_eqH2 = [h + k_sig * w for h, w in zip(res["H2"]["mapa"]["p_mbar"], res["H2O"]["mapa"]["p_mbar"])]
++    r_ext = 463.3                                                     # órbita de 18 MeV en la lámina (kiube v0.35)
++    B_ef = math.sqrt(18.0 ** 2 + 2 * 18.0 * 939.294) / 299.792458 / (r_ext / 1000)
++    ESC = dict(energia_final_mev=18.0, delta_e_kev_vuelta=4 * 40.0 * math.sin(math.radians(39.0)), b_media_t=B_ef,
++               r_pared_mm=E["r_cam"])
++    perfil = PerfilPresion.desde_mapa(r_mm, P_eqH2)
++    stripping = {}
++    for nombre, I in (("KIUBE180_180uA", 180.0), ("comparable_F65_200uA", 200.0)):
++        r = simular_perdida_gas(corriente_ua=I, perfil=perfil, composicion={"H2": 1.0}, **ESC)
++        stripping[nombre] = dict(fraccion_perdida=r.fraccion_perdida, pct=round(100 * r.fraccion_perdida, 4),
++                                 potencia_perdida_w=round(r.potencia_perdida_w, 2),
++                                 energia_media_h0_mev=round(r.parametros["energia_media_h0_mev"], 2),
++                                 primera_vuelta_pct=round(100 * r.perdida_por_vuelta[0], 4))
++    # sensibilidad: H₂ de la fuente 3,5 sccm (AMIT)
++    f_amit = 3.5 / E["sccm"]
++    perfil_a = PerfilPresion.desde_mapa(r_mm, [f_amit * h + k_sig * w for h, w in
++                                                zip(res["H2"]["mapa"]["p_mbar"], res["H2O"]["mapa"]["p_mbar"])])
++    ra = simular_perdida_gas(corriente_ua=180.0, perfil=perfil_a, composicion={"H2": 1.0}, **ESC)
++    # referencias V04 (evidencias anteriores, si existen en este entorno)
++    v04 = dict(S_eff_l_s=7559.4, P_eq_F74_mbar=1.33e-7, perdida_F66_pct=0.00123, gap_mm=132.0, Q_total_mbar_l_s=1.002e-3)
++    gas_ = stripping["KIUBE180_180uA"]["fraccion_perdida"]
++    out = {
++        "fase": 82, "version": "3.8.0", "tipo": "simulacion_teorica", "pq": "no_declarada_nunca",
++        "fecha": datetime.datetime.now().isoformat(timespec="seconds"),
++        "titulo": "Re-corrida F66/F74/F65 con cámara y bombeo kiube v0.35",
++        "entradas": {k: v for k, v in E.items()}, "n_moleculas_por_gas": N_MOL, "temperatura_k": T_K,
++        "F66_tpmc": {g: {"P_mbar_por_r": res[g]["mapa"]["p_mbar"], "P_media_mbar": res[g]["P_media_tpmc_mbar"],
++                         "P_centro_mbar": res[g]["mapa"]["p_mbar"][0], "P_pared_mbar": res[g]["mapa"]["p_mbar"][-1],
++                         "absorbidos": res[g]["mapa"]["absorbidos"], "hits_bomba": res[g]["mapa"]["hits_bomba"],
++                         "captura_media_tpmc": res[g]["captura_tpmc"], "bombas": res[g]["bombas"]} for g in res},
++        "r_mm": r_mm, "P_total_mbar": P_tot,
++        "F74_analitico": {g: {**res[g]["analitico"], "Q_mbar_l_s": res[g]["Q_mbar_l_s"],
++                              "P_eq_Q_S_mbar": res[g]["P_eq_analitica_mbar"],
++                              "tpmc_media_sobre_analitica": res[g]["P_media_tpmc_mbar"] / res[g]["P_eq_analitica_mbar"]}
++                          for g in res},
++        "consistencia_con_kiube": {
++            "S_H2O_l_s": [res["H2O"]["analitico"]["S_total_l_s"], E["S_kiube"]["H2O"]],
++            "S_H2_l_s": [res["H2"]["analitico"]["S_total_l_s"], E["S_kiube"]["H2"]],
++            "P_H2O_10h_mbar": [res["H2O"]["P_media_tpmc_mbar"], E["P_kiube"]["H2O_10h"]],
++            "P_H2_operacion_mbar": [res["H2"]["P_media_tpmc_mbar"], E["P_kiube"]["H2_operacion"]],
++            "nota": "kiube v0.35 usa su TPMC 3D con la geometría CAD completa; F82 usa el motor cilíndrico de F66 con gap efectivo"},
++        "F65_stripping": {**stripping, "escenario": ESC, "sigma_mezcla_sobre_sigma_H2": k_sig,
++                          "sensibilidad_H2_3p5sccm_AMIT_pct": round(100 * ra.fraccion_perdida, 4)},
++        "comparacion_V04": {
++            "S_eff_H2O_l_s": [v04["S_eff_l_s"], res["H2O"]["analitico"]["S_total_l_s"]],
++            "P_eq_H2O_mbar": [v04["P_eq_F74_mbar"], res["H2O"]["P_eq_analitica_mbar"]],
++            "perdida_gas_pct": [v04["perdida_F66_pct"], stripping["comparable_F65_200uA"]["pct"]],
++            "perdida_V04_corregida_unidades_pct": v04["perdida_F66_pct"] * 1000.0,
++            "factor_por_unidades": 1000.0,
++            "factor_por_geometria_bombeo_y_carga_v035": stripping["comparable_F65_200uA"]["pct"] / (v04["perdida_F66_pct"] * 1000.0),
++            "P_H2O_tpmc_sobre_medida_TUD03T": res["H2O"]["P_media_tpmc_mbar"] / E["P_base_medida"]},
++        "contraste_IBA": {
++            "transmision_medida_TUD03": 0.81, "perdida_gas_atribuida_kiube": E["perdida_gas_kiube"],
++            "perdida_gas_F82": gas_, "cociente_F82_sobre_kiube": gas_ / E["perdida_gas_kiube"],
++            "P_base_medida_TUD03T_mbar": E["P_base_medida"], "P_H2O_F82_mbar": res["H2O"]["P_media_tpmc_mbar"],
++            "nota": ("La carga de H₂ (2 sccm) es EST y no se calibró con el 81 %: el contraste es independiente en la "
++                     "magnitud. σ PLUM-CYR y órbita 2D de F65 sin cambios.")},
++        "correccion_unidades": ("gas_stripping.MBAR_A_PA corregido de 0,1 a 100 (1 mbar = 100 Pa): todas las pérdidas por "
++                                "gas de F65/F66 eran 1000× bajas; registro en fase82/correcciones_historicas.jsonl"),
++        "advertencias": [
++            "Simulación teórica: sin haz real (memoria 3). No cierra 18.19; PQ no_declarada_nunca (14.9).",
++            "Motor cilíndrico de F66 con gap efectivo: no resuelve colinas (24 mm) ni valles (200 mm) por separado.",
++            "Ubicación de las 2 bombas en carcasas RF: EST (TUD03 confirma 4 ODP, no su posición).",
++            "Las evidencias de F66/F74/F65 no se modifican; F67 (Molflow+) sigue afectada y pendiente.",
++        ],
++    }
++    json.dump(out, open(OUT / "vacio_v035_f82.json", "w"), indent=1, ensure_ascii=False, default=float)
++    with open(OUT / "registro_vacio.jsonl", "a") as f:
++        f.write(json.dumps({"fecha": out["fecha"], "fase": 82, "n_mol": N_MOL,
++                            "P_media_H2O": res["H2O"]["P_media_tpmc_mbar"], "P_media_H2": res["H2"]["P_media_tpmc_mbar"],
++                            "perdida_gas_180uA": gas_}, ensure_ascii=False) + "\n")
++    # corrección histórica de unidades (append-only, precedente F73): las evidencias de F65/F66 no se reescriben
++    corr = [dict(fase="F65", magnitud="fraccion_perdida (todos los escenarios)", factor=1000.0,
++                 valor_registrado="0,0006–0,0063 % en 1e-7–1e-6 mbar", valor_corregido="0,6–6,3 %",
++                 causa="gas_stripping.MBAR_A_PA = 0,1 (1 mbar = 100 Pa): densidad n = P/kT 1000× baja"),
++            dict(fase="F66", magnitud="pérdida H⁻ con mapa TPMC", factor=1000.0, valor_registrado="0,00123 %",
++                 valor_corregido="≈1,23 %", causa="misma constante; el mapa de presión de F66 es correcto"),
++            dict(fase="F66/F67/F74", magnitud="presiones", factor=1.0, valor_registrado="sin cambio",
++                 valor_corregido="sin cambio", causa="vacuum_tpmc: dos factores de unidades se compensaban exactamente")]
++    with open(OUT / "correcciones_historicas.jsonl", "a") as f:
++        for c in corr:
++            f.write(json.dumps({"fecha": out["fecha"], **c}, ensure_ascii=False) + "\n")
++    # resolución de las marcas de F81 (append-only; la marca original no se toca)
++    with open(OUT / "resolucion_marcas_f81.jsonl", "a") as f:
++        for fase in ("F66", "F74", "F65"):
++            f.write(json.dumps({"fecha": out["fecha"], "fase_afectada": fase, "estado": "re_corrida_en_F82",
++                                "evidencia": "fase82/vacio_v035_f82.json"}, ensure_ascii=False) + "\n")
++        f.write(json.dumps({"fecha": out["fecha"], "fase_afectada": "F67", "estado": "afectada_pendiente_re_corrida",
++                            "motivo": "requiere Molflow+ oficial con la geometría v0.35"}, ensure_ascii=False) + "\n")
++    return out
++
++
++if __name__ == "__main__":
++    o = ejecutar()
++    for g in ("H2O", "H2"):
++        t, a = o["F66_tpmc"][g], o["F74_analitico"][g]
++        print(f"{g}: S = {a['S_total_l_s']:.0f} l/s (s = {a['s_captura']:.3f}), P_eq Q/S = {a['P_eq_Q_S_mbar']:.2e}; "
++              f"TPMC centro {t['P_centro_mbar']:.2e} → pared {t['P_pared_mbar']:.2e}, media {t['P_media_mbar']:.2e} mbar")
++    print("stripping:", {k: v for k, v in o["F65_stripping"].items() if k.startswith(("KIUBE", "comparable", "sens"))})
++    print("V04 →", o["comparacion_V04"])
++    print("IBA:", {k: o["contraste_IBA"][k] for k in ("perdida_gas_atribuida_kiube", "perdida_gas_F82", "cociente_F82_sobre_kiube")})
+diff --git a/services/yield_engine/app/domain/gas_stripping.py b/services/yield_engine/app/domain/gas_stripping.py
+index dcc876b..948087d 100644
+--- a/services/yield_engine/app/domain/gas_stripping.py
++++ b/services/yield_engine/app/domain/gas_stripping.py
+@@ -37,7 +37,7 @@ from dataclasses import dataclass, field
+ # --- constantes físicas ---
+ K_B = 1.380649e-23          # J/K
+ M_H_MEV = 938.272           # masa protón (H⁻ ≈ p), MeV/c²
+-MBAR_A_PA = 0.1             # 1 mbar = 0,1 Pa
++MBAR_A_PA = 100.0           # 1 mbar = 100 Pa (F82: corregido; hasta v3.7.0 valía 0,1 → densidad y pérdidas 1000× bajas)
+ 
+ # --- secciones eficaces citadas: sigma = C / beta² (cm² por átomo) ---
+ _C_ATOMO = {  # coeficiente C en 1e-19 cm²
+diff --git a/services/yield_engine/app/domain/vacuum_tpmc.py b/services/yield_engine/app/domain/vacuum_tpmc.py
+index 8cd2921..b631187 100644
+--- a/services/yield_engine/app/domain/vacuum_tpmc.py
++++ b/services/yield_engine/app/domain/vacuum_tpmc.py
+@@ -62,6 +62,9 @@ class CamaraVacio:
+     q_h2_fuentes_total_mbar_l_s: float = 1e-3
+     masa_gas_g_mol: float = 18.015
+     temperatura_k: float = 303.0
++    # F82: bombas configurables (por defecto vacío → disposición V04: n_bombas a 45°+k·90° en ambas tapas con
++    # s_captura). Cada bomba: {"x_mm", "y_mm", "lado" (+1 tapa superior, -1 inferior, 0 ambas), "r_mm", "s"}.
++    bombas: tuple = ()
+ 
+     @property
+     def v_media_mm_s(self) -> float:
+@@ -81,6 +84,9 @@ class CamaraVacio:
+     @property
+     def s_efectiva_l_s(self) -> float:
+         # S = A · v_avg/4 · s (TPMC-IPAC14); A cm², v cm/s → l/s
++        if self.bombas:
++            return sum(math.pi * (b["r_mm"] / 10) ** 2 * (self.v_media_mm_s / 10) / 4 * b["s"] / 1000.0
++                       for b in self.bombas)
+         a_cm2 = math.pi * (self.r_bomba_mm / 10) ** 2
+         return (self.n_bombas * a_cm2 * (self.v_media_mm_s / 10) / 4
+                 * self.s_captura / 1000.0)
+@@ -113,10 +119,19 @@ def simular_mapa_presion(cam: CamaraVacio, n_moleculas: int = 400_000,
+     rng = np.random.default_rng(semilla)
+     R, H = cam.r_pared_mm, cam.gap_mm
+     zh = H / 2.0
+-    bombas_xy = np.array([
+-        [cam.r_pos_bomba_mm * math.cos(math.pi / 4 + math.pi / 2 * k),
+-         cam.r_pos_bomba_mm * math.sin(math.pi / 4 + math.pi / 2 * k)]
+-        for k in range(cam.n_bombas)])
++    if cam.bombas:
++        bombas_xy = np.array([[b["x_mm"], b["y_mm"]] for b in cam.bombas])
++        b_lado = np.array([b["lado"] for b in cam.bombas], dtype=float)
++        b_r = np.array([b["r_mm"] for b in cam.bombas], dtype=float)
++        b_s = np.array([b["s"] for b in cam.bombas], dtype=float)
++    else:
++        bombas_xy = np.array([
++            [cam.r_pos_bomba_mm * math.cos(math.pi / 4 + math.pi / 2 * k),
++             cam.r_pos_bomba_mm * math.sin(math.pi / 4 + math.pi / 2 * k)]
++            for k in range(cam.n_bombas)])
++        b_lado = np.zeros(cam.n_bombas)
++        b_r = np.full(cam.n_bombas, cam.r_bomba_mm)
++        b_s = np.full(cam.n_bombas, cam.s_captura)
+ 
+     q_pared_total = cam.q_pared_mbar_l_s_cm2 * cam.area_total_cm2
+     frac_fuente = cam.q_h2_fuentes_total_mbar_l_s / cam.q_total_mbar_l_s
+@@ -198,10 +213,12 @@ def simular_mapa_presion(cam: CamaraVacio, n_moleculas: int = 400_000,
+             # ¿en boca de bomba?
+             r2x = hit[:, 0:1] - bombas_xy[None, :, 0]
+             r2y = hit[:, 1:2] - bombas_xy[None, :, 1]
+-            en_bomba = cerca_tapa & ((r2x ** 2 + r2y ** 2)
+-                                     < cam.r_bomba_mm ** 2).any(axis=1)
++            lado_ok = (b_lado[None, :] == 0) | (np.sign(hit[:, 2:3]) == b_lado[None, :])
++            dentro = ((r2x ** 2 + r2y ** 2) < b_r[None, :] ** 2) & lado_ok
++            en_bomba = cerca_tapa & dentro.any(axis=1)
+             hits_bomba += int(en_bomba.sum())
+-            absorbe = en_bomba & (rng.random(len(hit)) < cam.s_captura)
++            s_hit = np.where(en_bomba, b_s[np.argmax(dentro, axis=1)], 0.0)
++            absorbe = en_bomba & (rng.random(len(hit)) < s_hit)
+             absorbidos += int(absorbe.sum())
+ 
+             # impingement en tapas → presión
+@@ -233,11 +250,13 @@ def simular_mapa_presion(cam: CamaraVacio, n_moleculas: int = 400_000,
+ 
+     # ---------- conversión impingement → presión ----------
+     # flujo real: Q [mbar·l/s] → moléculas/s
+-    n_real_s = cam.q_total_mbar_l_s * 0.1 * 1e-3 / (K_B * cam.temperatura_k)
++    # 1 mbar·l/s = 0,1 Pa·m³/s. (F82: hasta v3.7.0 se escribía ×0,1×1e-3 y luego p_mbar = p_pa×10; ambos factores se
++    # compensaban exactamente, así que las presiones de F66/F67/F74 eran correctas. Ahora cada paso es explícito.)
++    n_real_s = cam.q_total_mbar_l_s * 0.1 / (K_B * cam.temperatura_k)
+     escala = n_real_s / n_moleculas          # moléculas reales/s por virtual
+     z_m2s = hits_tapa * escala / area_bin_m2
+     p_pa = z_m2s * K_B * cam.temperatura_k * 4.0 / (cam.v_media_mm_s / 1000.0)
+-    p_mbar = p_pa * 10.0
++    p_mbar = p_pa / 100.0
+ 
+     r_centros = ((np.arange(n_bins_r) + 0.5) * R / n_bins_r).tolist()
+     return {
+-- 
+2.43.0
+

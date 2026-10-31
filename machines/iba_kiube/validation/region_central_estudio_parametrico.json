@@ -1,0 +1,170 @@
+{
+ "descripcion": "Estudios paramétricos de la región central C18/9 (n_haz 60–150; transmisión = fracción del haz que llega a 6 vueltas o al radio de salida)",
+ "recorte_chimenea_D": [
+  {
+   "corte_mm": 0.0,
+   "especie": "H-",
+   "ventana": [
+    -45.0,
+    30.0
+   ],
+   "transmision": 0.11333333333333333,
+   "mueren_en_chimenea_D": 20,
+   "n": 150
+  },
+  {
+   "corte_mm": 0.0,
+   "especie": "D-",
+   "ventana": [
+    -70.0,
+    -10.0
+   ],
+   "transmision": 0.22666666666666666,
+   "mueren_en_chimenea_D": 2,
+   "n": 150
+  },
+  {
+   "corte_mm": 1.0,
+   "especie": "H-",
+   "ventana": [
+    -50.0,
+    30.0
+   ],
+   "transmision": 0.11333333333333333,
+   "mueren_en_chimenea_D": 17,
+   "n": 150
+  },
+  {
+   "corte_mm": 1.0,
+   "especie": "D-",
+   "ventana": [
+    -70.0,
+    -10.0
+   ],
+   "transmision": 0.22,
+   "mueren_en_chimenea_D": 1,
+   "n": 150
+  },
+  {
+   "corte_mm": 1.6,
+   "especie": "H-",
+   "ventana": [
+    -55.0,
+    25.0
+   ],
+   "transmision": 0.1,
+   "mueren_en_chimenea_D": 15,
+   "n": 150
+  },
+  {
+   "corte_mm": 1.6,
+   "especie": "D-",
+   "ventana": [
+    -70.0,
+    -10.0
+   ],
+   "transmision": 0.20666666666666667,
+   "mueren_en_chimenea_D": 3,
+   "n": 150
+  }
+ ],
+ "azimut_fuentes": [
+  {
+   "dtheta_deg": -8.0,
+   "especie": "H-",
+   "desviacion_longitudinal_deg": 6.391289455569358,
+   "transmision": 0.13333333333333333,
+   "fase_diseno": -50.0,
+   "ancho_aceptancia": 85.0
+  },
+  {
+   "dtheta_deg": -8.0,
+   "especie": "D-",
+   "desviacion_longitudinal_deg": 9.564639487341422,
+   "transmision": 0.18333333333333332,
+   "fase_diseno": -60.0,
+   "ancho_aceptancia": 80.0
+  },
+  {
+   "dtheta_deg": -4.0,
+   "especie": "H-",
+   "desviacion_longitudinal_deg": 11.150617977797916,
+   "transmision": 0.16666666666666666,
+   "fase_diseno": 15.0,
+   "ancho_aceptancia": 75.0
+  },
+  {
+   "dtheta_deg": -4.0,
+   "especie": "D-",
+   "desviacion_longitudinal_deg": 9.28019774822751,
+   "transmision": 0.13333333333333333,
+   "fase_diseno": -50.0,
+   "ancho_aceptancia": 100.0
+  },
+  {
+   "dtheta_deg": 0.0,
+   "especie": "H-",
+   "desviacion_longitudinal_deg": 12.886748184358197,
+   "transmision": 0.11333333333333333,
+   "fase_diseno": 15.0,
+   "ancho_aceptancia": 80.0
+  },
+  {
+   "dtheta_deg": 0.0,
+   "especie": "D-",
+   "desviacion_longitudinal_deg": 8.87079897787729,
+   "transmision": 0.22666666666666666,
+   "fase_diseno": -45.0,
+   "ancho_aceptancia": 65.0
+  },
+  {
+   "dtheta_deg": 4.0,
+   "especie": "H-",
+   "desviacion_longitudinal_deg": 7.562582763180831,
+   "transmision": 0.15,
+   "fase_diseno": -5.0,
+   "ancho_aceptancia": 70.0
+  },
+  {
+   "dtheta_deg": 4.0,
+   "especie": "D-",
+   "desviacion_longitudinal_deg": 8.409815178078063,
+   "transmision": 0.23333333333333334,
+   "fase_diseno": -35.0,
+   "ancho_aceptancia": 65.0
+  },
+  {
+   "dtheta_deg": 8.0,
+   "especie": "H-",
+   "desviacion_longitudinal_deg": 17.912365467755556,
+   "transmision": 0.13333333333333333,
+   "fase_diseno": 15.0,
+   "ancho_aceptancia": 65.0
+  },
+  {
+   "dtheta_deg": 8.0,
+   "especie": "D-",
+   "desviacion_longitudinal_deg": 10.05275105803981,
+   "transmision": 0.16666666666666666,
+   "fase_diseno": -35.0,
+   "ancho_aceptancia": 80.0
+  }
+ ],
+ "elegido": {
+  "src_dtheta_deg": 4.0,
+  "corte_ext_mm": 0.0,
+  "motivo": "dθ = +4°: menor desviación de los puntos V = 0 respecto de los ejes (H⁻ 12.9°→7.6°, D⁻ 8.9°→8.4°) y fase de diseño D⁻ en −35° (dentro de la guía CAS −40…−10°). Las diferencias de transmisión entre casos (0.09–0.17 para H⁻) están dentro del ruido estadístico de 60–150 partículas (σ ≈ 0.03–0.05): la mejora demostrada es de ajuste en fase, no de transmisión. El recorte de la chimenea D⁻ reduce las muertes de H⁻ sobre ella (20→15 de 150) sin cambio significativo de la transmisión total en esta geometría EST."
+ },
+ "final_n150": {
+  "H-": {
+   "transmision": 0.093,
+   "desviacion_deg": 7.6,
+   "fase_diseno": -5
+  },
+  "D-": {
+   "transmision": 0.207,
+   "desviacion_deg": 8.4,
+   "fase_diseno": -35
+  }
+ }
+}

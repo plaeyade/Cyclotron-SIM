@@ -1,0 +1,500 @@
+From e3b65dc295577093f96c871c53b3fbd3f82be7f2 Mon Sep 17 00:00:00 2001
+From: rpos <rpos@local>
+Date: Wed, 28 Oct 2026 22:45:42 -0600
+Subject: [PATCH 4/5] F84 v3.10.0: Molflow+ 2.11.1 oficial con camara v0.35;
+ validacion analitica corrige TPMC (presiones x2), fuga en la tapa y fuente H2
+ a la mitad del generador Molflow, bombas V04 en una tapa; Molflow/TPMC = 1.00
+ (H2O y H2), perdida gas 4.4%; 3 pruebas
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01UsuNxxGDpmcCyJTGFRkq7k
+---
+ CHANGELOG.md                                  |  22 ++
+ pipelines/molflow_v035_f84.py                 | 203 ++++++++++++++++++
+ pipelines/test_molflow_f84.py                 |  31 +++
+ pipelines/test_vacio_f82.py                   |   7 +-
+ .../yield_engine/app/domain/vacuum_tpmc.py    |  15 +-
+ tools/kiube_camara_molflow.py                 |  68 +++---
+ 6 files changed, 312 insertions(+), 34 deletions(-)
+ create mode 100644 pipelines/molflow_v035_f84.py
+ create mode 100644 pipelines/test_molflow_f84.py
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index f411ca1..59cc8a3 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -292,3 +292,25 @@ Todas las versiones siguen semver. Cada fase tiene commit, tag y evidencia en
+   (0,025 × F72; I0 Ag109→110m EST). 12 corridas × 2000 historias, error estándar entre corridas.
+ - Artefacto de varianza declarado (meseta a 1,4–2,0 m de profundidad); F71/F76/F77 siguen afectadas. 4 pruebas.
+ - Todo simulacion_teorica: no cierra 18.19; PQ no_declarada_nunca (14.9).
++
++## v3.10.0 — 2026-10-28 — Fase 84: Molflow+ oficial con la cámara v0.35 + corrección de los motores de vacío
++- molflowCLI 2.11.1 (paquete Debian del usuario). Validación analítica previa (cilindro con una boca, P = Q/S):
++  encontró y corrige tres errores; las evidencias anteriores no se reescriben (correcciones_historicas.jsonl):
++  - vacuum_tpmc: área de una sola tapa para los impactos de las dos → presiones de F66/F82 ×2 (2,003 → 1,001 × Q/S);
++  - tools/kiube_camara_molflow.py: corona abierta entre tapa y pared (fuga) → Molflow 0,064 → 0,998 × Q/S;
++  - tools/kiube_camara_molflow.py: fuente de H₂ de 2 caras con caudal dividido entre 2 (Molflow lo toma como total);
++  - vacuum_tpmc (modo V04): bocas en ambas tapas (8) frente a las 4 de la tapa superior de F67/F74.
++- Cámara v0.35 (F82 recalculada con el motor corregido): Molflow/TPMC = 1,00 en H₂O y H₂ (0,99–1,03 por radio),
++  absorbido 99,8–99,9 %; pérdida por gas 4,4 % (2 sccm) / 7,0 % (3,5 sccm), Molflow 4,43 % frente a TPMC 4,42 %.
++  P(H₂O) 1,45e-7 mbar (medida IBA con RF 2,7e-7). Control V04: Molflow/TPMC 1,006 (F66 y F67 conciliadas).
++- F67 usaba E = 17,4 MeV, ΔE = 80 keV y B = 1,77 T para la pérdida (distinto de F65/F66): declarado.
++- Rangos de 3 pruebas de F82 ampliados para aceptar la física corregida. 3 pruebas nuevas.
++
++## v3.11.0 — 2026-10-28 — Fase 85: cierre de la cadena de blindaje F70–F78 (kiube v0.35)
++- F83 ampliada a 17 corridas (34 000 historias; 5 con malla de fluencia en 3 grupos). Esquema v2 de importancia
++  (techo y losa) probado y descartado por coste; artefacto de varianza de F83 declarado.
++- F70 sustituida (fuera de bloque 2,7e-4); F71 tabla F83/F85/SRG (TVL medio 26,2 cm; SRG ≈ 30); F72 actualizada
++  (Co60 10,2 ± 0,1 GBq, Eu152 4,8, Cu64 583, Ag110m 0,57); F76 métrica H*(10) ICRP-74, E(AP) ICRP-116 pendiente_fuente;
++  F77 mallas_gemelo_f77.npz (885 720 vóxeles, H*(10) y fluencia en 3 grupos, media/σ); F78 exterior DIRECTO:
++  0,005–0,012 µSv/h (cara), 0,024 µSv/h frente a T1; dosis anual ≤ 0,02 mSv con 150 k µAh/año (límite 1 mSv).
++- 4 pruebas. Todo simulacion_teorica: no cierra 18.19; PQ no_declarada_nunca (14.9).
+diff --git a/pipelines/molflow_v035_f84.py b/pipelines/molflow_v035_f84.py
+new file mode 100644
+index 0000000..6958774
+--- /dev/null
++++ b/pipelines/molflow_v035_f84.py
+@@ -0,0 +1,203 @@
++#!/usr/bin/env python3
++"""F84 — Re-corrida de F67 (validación cruzada con Molflow+ oficial) con la cámara y el bombeo de kiube v0.35 (F82).
++
++Cierra la marca de afectación de F81 sobre F67. Mismo método que F67: tools/kiube_camara_molflow.py genera la cámara
++(ahora con la configuración de F82: gap 102,6 mm, 2 bocas en la tapa inferior a 0°/180° y 2 en la superior a 90°/270°,
++r = 127 mm a 375 mm, captura de F82 por gas) y molflowCLI 2.11.1 (binario oficial CERN, paquete Debian del usuario)
++calcula la presión por faceta. Dos gases, como F82: H₂O de paredes (5,2e-4 mbar·l/s) y H₂ de la fuente (2 sccm).
++Se compara con el mapa TPMC de F82 y se recalcula la pérdida por gas con el mapa de Molflow.
++Validación analítica previa (ambos motores): cilindro r = 50 cm, h = 100 cm, una boca r = 5 cm con s = 1 → P = Q/S
++uniforme. Encontró dos errores que se corrigen aquí (registro append-only, evidencias anteriores intactas):
++  - vacuum_tpmc (F66/F82): área de una sola tapa para los impactos de las dos → presiones ×2;
++  - tools/kiube_camara_molflow.py (F67): la tapa terminaba en el último anillo de 3 cm → corona abierta entre tapa y
++    pared, el gas escapaba → presiones de Molflow bajas (×16 en el caso analítico);
++  - tools/kiube_camara_molflow.py (F67): la fuente de H₂ (disco de 2 caras) inyectaba la mitad de su caudal.
++Con ambas correcciones los dos motores reproducen Q/S al 0,1–0,2 %. F82 se recalcula aquí con el motor corregido.
++Reglas: simulacion_teorica, pq no_declarada_nunca, append-only, 18.10, memoria 3.
++Rutas: RPOS_EVIDENCIA, MOLFLOW_CLI (binario), F84_NDES (desorciones por gas; por defecto 2e6).
++"""
++from __future__ import annotations
++import csv, datetime, hashlib, json, math, os, pathlib, subprocess, sys
++import xml.etree.ElementTree as ET
++import numpy as np
++
++ROOT = pathlib.Path(__file__).resolve().parents[1]
++sys.path.insert(0, str(ROOT / "services" / "yield_engine")); sys.path.insert(0, str(ROOT / "tools"))
++for _m in [k for k in list(sys.modules) if k == "app" or k.startswith("app.")]:
++    del sys.modules[_m]
++from app.domain.gas_stripping import PerfilPresion, simular_perdida_gas            # noqa: E402
++import kiube_camara_molflow as KM                                                  # noqa: E402
++
++EV = pathlib.Path(os.environ.get("RPOS_EVIDENCIA", "/mnt/agents/work/evidencia_v072"))
++OUT = EV / "fase84"
++CLI = os.environ.get("MOLFLOW_CLI", "molflowCLI")
++NDES = float(os.environ.get("F84_NDES", "2e6"))
++KB = 1.380649e-23
++
++
++def md5(p):
++    h = hashlib.md5()
++    with open(p, "rb") as f:
++        for c in iter(lambda: f.read(1 << 20), b""):
++            h.update(c)
++    return h.hexdigest()
++
++
++def correr(xml, tag):
++    res = OUT / f"res_{tag}"
++    subprocess.run([CLI, "-f", str(xml), "-d", f"{NDES:g}", "-j", "2", "--writeFacetQuantities", "--outputPath", str(res),
++                    "-o", f"{tag}_out.zip", "--noProgress", "-s", "0", "-a", "0"], check=True,
++                   stdout=open(OUT / f"{tag}.log", "w"), stderr=subprocess.STDOUT)
++    return res / "facet_physics.csv"
++
++
++def leer(csv_path, xml_path, gap_mm, r_mm=548.0, n_bins=20, temp=293.15):
++    root = ET.parse(xml_path).getroot()
++    V = np.array([[float(v.get(k)) for k in "xyz"] for v in root.find("Geometry/Vertices")])
++    rows = list(csv.DictReader(open(csv_path)))
++    P = np.array([float(r["Pressure [mbar]"]) for r in rows]); Zt = np.array([float(r["Imping.rate"]) for r in rows])
++    rad, zz, area, st = [], [], [], []
++    for f in root.find("Geometry/Facets"):
++        idx = [int(i.get("vertex")) for i in f.find("Indices")]
++        vs = V[idx]; c = vs.mean(0)
++        rad.append(math.hypot(c[0], c[1]) * 10); zz.append(c[2] * 10)
++        area.append(sum(0.5 * np.linalg.norm(np.cross(vs[k] - vs[0], vs[k + 1] - vs[0])) for k in range(1, len(vs) - 1)))
++        st.append(float(f.find("Sticking").get("constValue")))
++    rad, zz, area, st = map(np.array, (rad, zz, area, st))
++    tapa = (np.abs(zz) > 0.4 * gap_mm) & (st < 0.01)                   # facetas de tapa (sin las bocas)
++    b = np.linspace(0, r_mm, n_bins + 1); rc, pc = [], []
++    for i in range(n_bins):
++        m = tapa & (rad >= b[i]) & (rad < b[i + 1])
++        if m.any():
++            rc.append(float((b[i] + b[i + 1]) / 2)); pc.append(float(np.average(P[m], weights=area[m])))
++    bomba = st >= 0.01
++    q_abs = float((Zt[bomba] * area[bomba] * 1e-4 * st[bomba]).sum() * KB * temp * 10.0)   # mbar·l/s
++    return rc, pc, q_abs
++
++
++def ejecutar():
++    OUT.mkdir(parents=True, exist_ok=True)
++    # --- validación analítica de los dos motores ---
++    import importlib.util
++    from app.domain.vacuum_tpmc import CamaraVacio, simular_mapa_presion
++    Ra, Ha, rpa, Qa = 50.0, 100.0, 5.0, 1e-3
++    area_a = 2 * math.pi * Ra * Ra + 2 * math.pi * Ra * Ha
++    va = math.sqrt(8 * 8.314462618 * 293.15 / (math.pi * 0.018015)) * 100
++    Sa = math.pi * rpa ** 2 * va / 4 / 1000
++    xml_a = OUT / "analitico.xml"; KM.TEMP = 293.15
++    KM.generar_xml(str(xml_a), dict(R_cm=Ra, gap_cm=Ha, temp=293.15, masa=18.015, bombas=[(25.0, 0.0, 1, rpa, 1.0)],
++                                    q_pared=Qa / area_a, q_fuente=1e-30))
++    Pm = np.array([float(r["Pressure [mbar]"]) for r in csv.DictReader(open(correr(xml_a, "analitico")))])
++    ma = simular_mapa_presion(CamaraVacio(r_pared_mm=Ra * 10, gap_mm=Ha * 10, n_bombas=1, r_bomba_mm=rpa * 10,
++                                          r_pos_bomba_mm=250, s_captura=1.0, q_pared_mbar_l_s_cm2=Qa / area_a,
++                                          q_h2_fuentes_total_mbar_l_s=0.0, masa_gas_g_mol=18.015, temperatura_k=293.15,
++                                          bombas=({"x_mm": 250.0, "y_mm": 0.0, "lado": 1, "r_mm": rpa * 10, "s": 1.0},)),
++                              n_moleculas=200_000, n_bins_r=10)
++    analitico = dict(geometria="cilindro r 50 cm, h 100 cm, 1 boca r 5 cm s 1, desgasificado uniforme 1e-3 mbar·l/s",
++                     P_QS_mbar=Qa / Sa, P_molflow_mbar=float(Pm.mean()), P_tpmc_mbar=float(np.mean(ma["p_mbar"])),
++                     molflow_sobre_QS=float(Pm.mean()) / (Qa / Sa), tpmc_sobre_QS=float(np.mean(ma["p_mbar"])) / (Qa / Sa),
++                     antes_de_corregir=dict(molflow_sobre_QS=0.0635, tpmc_sobre_QS=2.003))
++    # --- F82 recalculada con el motor corregido (en fase84/; la evidencia de F82 no se toca) ---
++    spec = importlib.util.spec_from_file_location("f82", ROOT / "pipelines/vacio_v035_f82.py")
++    F82 = importlib.util.module_from_spec(spec); spec.loader.exec_module(F82)
++    F82.OUT = OUT / "f82_corregida"
++    f82 = F82.ejecutar()
++    f82_orig = json.load(open(EV / "fase82/vacio_v035_f82.json"))
++    E = f82["entradas"]; gap = E["gap_mm"]
++    res = {}
++    # control: cámara V04 sin configuración (debe reproducir F67)
++    xml_v04 = OUT / "control_v04.xml"; KM.TEMP = 293.15; KM.generar_xml(str(xml_v04))
++    rc, pc, qa = leer(correr(xml_v04, "control_v04"), xml_v04, 132.0)
++    mv = simular_mapa_presion(CamaraVacio(temperatura_k=293.15), n_moleculas=300_000, n_bins_r=20)   # V04 corregida
++    pv = np.interp(rc, mv["r_mm"], mv["p_mbar"])
++    control_tpmc = dict(P_centro_tpmc_mbar=float(mv["p_mbar"][0]), ratio_molflow_tpmc_medio=float(np.mean(np.array(pc) / pv)),
++                        ratio_min=float(np.min(np.array(pc) / pv)), ratio_max=float(np.max(np.array(pc) / pv)))
++    control = dict(**control_tpmc, P_centro_molflow_estanco_mbar=pc[0], P_centro_F67_registrado_mbar=1.25e-7, cociente=pc[0] / 1.25e-7,
++                   nota="F67 tenía la corona abierta; F66 ponía bombas en ambas tapas y F67 solo en la superior (configuraciones distintas)")
++    for gas, m, Q in (("H2O", 18.015, E["Q_H2O"]), ("H2", 2.016, E["Q_H2"])):
++        b = f82["F66_tpmc"][gas]["bombas"]
++        cfg = dict(R_cm=E["r_cam"] / 10, gap_cm=gap / 10, temp=f82["temperatura_k"], masa=m,
++                   bombas=[(x["x_mm"] / 10, x["y_mm"] / 10, x["lado"], x["r_mm"] / 10, x["s"]) for x in b])
++        area_cm2 = 2 * math.pi * (E["r_cam"] / 10) ** 2 + 2 * math.pi * (E["r_cam"] / 10) * (gap / 10)
++        cfg["q_pared"] = Q / area_cm2 if gas == "H2O" else 0.0
++        cfg["q_fuente"] = Q if gas == "H2" else 0.0
++        if gas == "H2O":
++            cfg["q_fuente"] = 1e-30                                       # disco de la fuente sin gas
++        xml = OUT / f"camara_v035_{gas}.xml"
++        info = KM.generar_xml(str(xml), cfg)
++        rc, pc, qa = leer(correr(xml, f"v035_{gas}"), xml, gap, E["r_cam"], temp=f82["temperatura_k"])
++        r82, p82 = f82["r_mm"], f82["F66_tpmc"][gas]["P_mbar_por_r"]
++        p82i = np.interp(rc, r82, p82)
++        ratio = np.array(pc) / p82i
++        res[gas] = dict(xml=info, md5_xml=md5(xml), r_mm=rc, P_molflow_mbar=pc, P_tpmc_F82_mbar=p82i.tolist(),
++                        ratio_medio=float(ratio.mean()), ratio_min=float(ratio.min()), ratio_max=float(ratio.max()),
++                        P_media_molflow_mbar=float(np.mean(pc)), P_media_F82_mbar=float(np.mean(p82i)),
++                        Q_inyectado_mbar_l_s=Q, Q_absorbido_mbar_l_s=qa, fraccion_absorbida=qa / Q if Q else None)
++    # pérdida por gas con el mapa de Molflow (mismo escenario y presión H2-equivalente que F82)
++    k = f82["F65_stripping"]["sigma_mezcla_sobre_sigma_H2"]
++    r = res["H2"]["r_mm"]
++    Peq = [h + k * w for h, w in zip(res["H2"]["P_molflow_mbar"], np.interp(r, res["H2O"]["r_mm"], res["H2O"]["P_molflow_mbar"]))]
++    esc = f82["F65_stripping"]["escenario"]
++    st = simular_perdida_gas(corriente_ua=180.0, perfil=PerfilPresion.desde_mapa(r, Peq), composicion={"H2": 1.0}, **esc)
++    f82_loss = f82["F65_stripping"]["KIUBE180_180uA"]["fraccion_perdida"]
++    out = {
++        "fase": 84, "version": "3.10.0", "tipo": "simulacion_teorica", "pq": "no_declarada_nunca",
++        "fecha": datetime.datetime.now().isoformat(timespec="seconds"),
++        "titulo": "Re-corrida F67: Molflow+ 2.11.1 oficial con la cámara y el bombeo de kiube v0.35 (F82)",
++        "motor": {"binario": "molflowCLI 2.11.1 (CERN, paquete Debian del usuario)", "md5_binario": md5(CLI) if os.path.exists(CLI) else None,
++                  "desorciones_por_gas": NDES},
++        "validacion_analitica": analitico,
++        "control_v04": control,
++        "f82_corregida": {"P_media_H2O_mbar": f82["F66_tpmc"]["H2O"]["P_media_mbar"], "P_media_H2_mbar": f82["F66_tpmc"]["H2"]["P_media_mbar"],
++                          "P_media_H2O_F82_original_mbar": f82_orig["F66_tpmc"]["H2O"]["P_media_mbar"],
++                          "perdida_gas_180uA": f82["F65_stripping"]["KIUBE180_180uA"]["fraccion_perdida"],
++                          "perdida_gas_180uA_F82_original": f82_orig["F65_stripping"]["KIUBE180_180uA"]["fraccion_perdida"],
++                          "perdida_gas_3p5sccm_pct": f82["F65_stripping"]["sensibilidad_H2_3p5sccm_AMIT_pct"],
++                          "P_H2O_sobre_medida_TUD03T": f82["comparacion_V04"]["P_H2O_tpmc_sobre_medida_TUD03T"],
++                          "evidencia": "fase84/f82_corregida/vacio_v035_f82.json"},
++        "gases": res,
++        "stripping": {"perdida_molflow": st.fraccion_perdida, "perdida_F82_tpmc": f82_loss,
++                      "cociente_molflow_F82": st.fraccion_perdida / f82_loss,
++                      "escenario": esc, "corriente_uA": 180.0},
++        "observaciones": [
++            "F67 calculó la pérdida con E = 17,4 MeV, ΔE = 80 keV/vuelta y B = 1,77 T, distinto del escenario de F65/F66 "
++            "(18 MeV, 98,5 keV, 1,36 T): sus pérdidas no eran comparables entre fases. F84 usa el escenario de F82 (v0.35).",
++            "Las pérdidas de F67 heredan además el factor 1000 de MBAR_A_PA (corregido en F82).",
++        ],
++        "advertencias": [
++            "Simulación teórica: sin haz real (memoria 3). No cierra 18.19; PQ no_declarada_nunca (14.9).",
++            "Misma cámara cilíndrica de gap efectivo que F82 (validación del motor, no de la geometría 3D completa).",
++            "Ubicación de las 2 bombas en carcasas RF: EST.",
++        ],
++    }
++    json.dump(out, open(OUT / "molflow_v035_f84.json", "w"), indent=1, ensure_ascii=False, default=float)
++    with open(OUT / "registro_vacio.jsonl", "a") as f:
++        f.write(json.dumps({"fecha": out["fecha"], "fase": 84, "ratio_H2O": res["H2O"]["ratio_medio"],
++                            "ratio_H2": res["H2"]["ratio_medio"], "perdida_molflow": st.fraccion_perdida}, ensure_ascii=False) + "\n")
++    with open(OUT / "correcciones_historicas.jsonl", "a") as f:
++        for c in (dict(fase="F66/F82", magnitud="presiones TPMC", factor=0.5, causa="área de una sola tapa (vacuum_tpmc)"),
++                  dict(fase="F65/F66/F82", magnitud="pérdida por gas con mapa TPMC", factor="≈0,5", causa="hereda la presión ×2"),
++                  dict(fase="F67", magnitud="presiones Molflow", factor=control["cociente"],
++                       causa="corona abierta tapa–pared en tools/kiube_camara_molflow.py (fuga de gas)"),
++                  dict(fase="F67", magnitud="caudal de la fuente de H₂ en Molflow", factor=2.0,
++                       causa="disco de 2 caras con desgasificación dividida entre 2 (Molflow la toma como total)"),
++                  dict(fase="F66", magnitud="bombeo V04 del TPMC", factor="8 → 4 bocas",
++                       causa="bocas activas en ambas tapas frente a las 4 de la tapa superior declaradas en F67/F74"),
++                  dict(fase="F74", magnitud="P = Q/S analítica", factor=1.0, causa="no afectada (no usa los mapas)")):
++            f.write(json.dumps({"fecha": out["fecha"], **c}, ensure_ascii=False, default=float) + "\n")
++    with open(OUT / "resolucion_marcas_f81.jsonl", "a") as f:
++        f.write(json.dumps({"fecha": out["fecha"], "fase_afectada": "F67", "estado": "re_corrida_en_F84",
++                            "evidencia": "fase84/molflow_v035_f84.json"}, ensure_ascii=False) + "\n")
++    return out
++
++
++if __name__ == "__main__":
++    o = ejecutar()
++    print("analítico:", {k: v for k, v in o["validacion_analitica"].items() if k != "geometria"})
++    print("control V04:", o["control_v04"])
++    print("F82 corregida:", o["f82_corregida"])
++    for g in ("H2O", "H2"):
++        v = o["gases"][g]
++        print(g, {k: (f"{x:.3g}" if isinstance(x, float) else x) for k, x in v.items() if k in
++                  ("ratio_medio", "ratio_min", "ratio_max", "P_media_molflow_mbar", "P_media_F82_mbar", "fraccion_absorbida")})
++    print("stripping:", {k: (f"{x:.4g}" if isinstance(x, float) else x) for k, x in o["stripping"].items() if k != "escenario"})
+diff --git a/pipelines/test_molflow_f84.py b/pipelines/test_molflow_f84.py
+new file mode 100644
+index 0000000..4a87a10
+--- /dev/null
++++ b/pipelines/test_molflow_f84.py
+@@ -0,0 +1,31 @@
++#!/usr/bin/env python3
++"""Tests F84 — Molflow+ oficial con la cámara v0.35 y correcciones de los motores de vacío."""
++import json, os, pathlib
++
++EV = pathlib.Path(os.environ.get("RPOS_EVIDENCIA", "/mnt/agents/work/evidencia_v072")) / "fase84"
++E = json.load(open(EV / "molflow_v035_f84.json"))
++
++
++def test_validacion_analitica_ambos_motores():
++    a = E["validacion_analitica"]
++    assert abs(a["molflow_sobre_QS"] - 1) < 0.02 and abs(a["tpmc_sobre_QS"] - 1) < 0.02
++    assert a["antes_de_corregir"]["tpmc_sobre_QS"] > 1.9 and a["antes_de_corregir"]["molflow_sobre_QS"] < 0.1
++
++
++def test_molflow_vs_tpmc_corregido():
++    for g in ("H2O", "H2"):
++        v = E["gases"][g]
++        assert 0.85 < v["ratio_medio"] < 1.15, g                       # mismo mapa con los dos motores
++        assert v["fraccion_absorbida"] > 0.95, g                        # Molflow absorbe todo lo inyectado (estanco)
++    assert E["motor"]["md5_binario"] and len(E["motor"]["md5_binario"]) == 32
++
++
++def test_stripping_y_correcciones():
++    s = E["stripping"]
++    assert 0.8 < s["cociente_molflow_F82"] < 1.25
++    corr = [json.loads(l) for l in (EV / "correcciones_historicas.jsonl").read_text().splitlines() if l.strip()]
++    fases = {c["fase"] for c in corr}
++    assert {"F66/F82", "F67", "F74"} <= fases
++    res = [json.loads(l) for l in (EV / "resolucion_marcas_f81.jsonl").read_text().splitlines() if l.strip()]
++    assert any(r["fase_afectada"] == "F67" and r["estado"] == "re_corrida_en_F84" for r in res)
++    assert any("memoria 3" in a for a in E["advertencias"])
+diff --git a/pipelines/test_vacio_f82.py b/pipelines/test_vacio_f82.py
+index 4d2616f..6e2f20d 100644
+--- a/pipelines/test_vacio_f82.py
++++ b/pipelines/test_vacio_f82.py
+@@ -35,14 +35,15 @@ def test_bombeo_analitico_coherente_con_kiube():
+ def test_tpmc_vs_analitico_y_medida():
+     for g in ("H2O", "H2"):
+         a = E["F74_analitico"][g]
+-        assert 1.0 < a["tpmc_media_sobre_analitica"] < 3.0             # el gap fino añade resistencia de conductancia
++        # F84: con el área de las dos tapas corregida el TPMC queda en ~1,0–1,1 × Q/S (antes ~2,0–2,2 por el error)
++        assert 0.9 < a["tpmc_media_sobre_analitica"] < 3.0
+         assert abs(E["F66_tpmc"][g]["captura_media_tpmc"] / a["s_captura"] - 1) < 0.05
+-    assert 0.7 < E["comparacion_V04"]["P_H2O_tpmc_sobre_medida_TUD03T"] < 1.5
++    assert 0.4 < E["comparacion_V04"]["P_H2O_tpmc_sobre_medida_TUD03T"] < 1.5      # F84: 0,54 con el motor corregido
+ 
+ 
+ def test_stripping_frente_a_medida_iba():
+     s = E["F65_stripping"]
+-    assert 0.03 < s["KIUBE180_180uA"]["fraccion_perdida"] < 0.25      # IBA: 19 % de pérdida total (TUD03)
++    assert 0.02 < s["KIUBE180_180uA"]["fraccion_perdida"] < 0.25      # IBA: 19 % de pérdida total (TUD03); F84: 4,4 %
+     assert s["sensibilidad_H2_3p5sccm_AMIT_pct"] > s["KIUBE180_180uA"]["pct"]
+     c = E["comparacion_V04"]
+     assert c["factor_por_unidades"] == 1000.0 and c["factor_por_geometria_bombeo_y_carga_v035"] > 1
+diff --git a/services/yield_engine/app/domain/vacuum_tpmc.py b/services/yield_engine/app/domain/vacuum_tpmc.py
+index b631187..eb788f2 100644
+--- a/services/yield_engine/app/domain/vacuum_tpmc.py
++++ b/services/yield_engine/app/domain/vacuum_tpmc.py
+@@ -62,8 +62,8 @@ class CamaraVacio:
+     q_h2_fuentes_total_mbar_l_s: float = 1e-3
+     masa_gas_g_mol: float = 18.015
+     temperatura_k: float = 303.0
+-    # F82: bombas configurables (por defecto vacío → disposición V04: n_bombas a 45°+k·90° en ambas tapas con
+-    # s_captura). Cada bomba: {"x_mm", "y_mm", "lado" (+1 tapa superior, -1 inferior, 0 ambas), "r_mm", "s"}.
++    # F82: bombas configurables (por defecto vacío → disposición V04: n_bombas a 45°+k·90° en la tapa superior con
++    # s_captura; F84). Cada bomba: {"x_mm", "y_mm", "lado" (+1 tapa superior, -1 inferior, 0 ambas), "r_mm", "s"}.
+     bombas: tuple = ()
+ 
+     @property
+@@ -129,7 +129,9 @@ def simular_mapa_presion(cam: CamaraVacio, n_moleculas: int = 400_000,
+             [cam.r_pos_bomba_mm * math.cos(math.pi / 4 + math.pi / 2 * k),
+              cam.r_pos_bomba_mm * math.sin(math.pi / 4 + math.pi / 2 * k)]
+             for k in range(cam.n_bombas)])
+-        b_lado = np.zeros(cam.n_bombas)
++        # F84: 4 bocas en la tapa SUPERIOR, como declaran F67 (Molflow) y F74 (N_BOMBAS = 4 aperturas). Hasta v3.9.0
++        # valían en ambas tapas (8 bocas efectivas frente a las 4 de s_efectiva_l_s).
++        b_lado = np.ones(cam.n_bombas)
+         b_r = np.full(cam.n_bombas, cam.r_bomba_mm)
+         b_s = np.full(cam.n_bombas, cam.s_captura)
+ 
+@@ -137,9 +139,12 @@ def simular_mapa_presion(cam: CamaraVacio, n_moleculas: int = 400_000,
+     frac_fuente = cam.q_h2_fuentes_total_mbar_l_s / cam.q_total_mbar_l_s
+ 
+     hits_tapa = np.zeros(n_bins_r, dtype=np.int64)
+-    area_bin_m2 = np.array([
++    # F84: los impactos de AMBAS tapas se acumulan en hits_tapa → el área del anillo es la de las dos tapas. Hasta v3.9.0
++    # se usaba el área de una sola tapa y todas las presiones de F66/F82 salían ×2 (caso analítico: 1,74e-6 frente a
++    # Q/S = 8,68e-7 mbar; con la corrección 8,69e-7).
++    area_bin_m2 = 2.0 * np.array([
+         math.pi * ((R * (i + 1) / n_bins_r) ** 2 - (R * i / n_bins_r) ** 2)
+-        for i in range(n_bins_r)]) * 1e-6  # mm²→m²
++        for i in range(n_bins_r)]) * 1e-6  # mm²→m², dos tapas
+     absorbidos = 0
+     hits_bomba = 0
+ 
+diff --git a/tools/kiube_camara_molflow.py b/tools/kiube_camara_molflow.py
+index df4d5a8..1d634f0 100644
+--- a/tools/kiube_camara_molflow.py
++++ b/tools/kiube_camara_molflow.py
+@@ -70,7 +70,21 @@ def _normal_ok(p0, p1, p2, hacia):
+     return np.dot(n, hacia) > 0
+ 
+ 
+-def generar_xml(path_out: str) -> dict:
++def generar_xml(path_out: str, cfg: dict | None = None) -> dict:
++    """cfg (F84, opcional): {"R_cm", "gap_cm", "bombas": [(x_cm, y_cm, lado ±1, r_cm, s)], "q_pared" (mbar·l/s/cm²),
++    "q_fuente" (mbar·l/s), "masa" (g/mol), "temp" (K)}. Sin cfg: cámara KIUBE-V04 (4 bocas en la tapa superior)."""
++    global TEMP
++    cfg = cfg or {}
++    R_CM_, GAP_CM_ = cfg.get("R_cm", R_CM), cfg.get("gap_cm", GAP_CM)
++    q_pared, q_fuente, masa = cfg.get("q_pared", Q_PARED), cfg.get("q_fuente", Q_H2_TOTAL), cfg.get("masa", MASA)
++    TEMP = cfg.get("temp", TEMP)
++    bombas = cfg.get("bombas") or [(R_POS_CM * math.cos(math.pi / 4 + math.pi / 2 * k),
++                                    R_POS_CM * math.sin(math.pi / 4 + math.pi / 2 * k), +1, R_PORT_CM, S_BOMBA)
++                                   for k in range(N_BOMBAS)]
++    return _generar(path_out, R_CM_, GAP_CM_, bombas, q_pared, q_fuente, masa)
++
++
++def _generar(path_out, R_CM, GAP_CM, bombas, Q_PARED, Q_H2_TOTAL, MASA):
+     verts: list[tuple] = []
+     facetas: list[tuple] = []  # (indices, kwargs)
+ 
+@@ -97,25 +111,26 @@ def generar_xml(path_out: str) -> dict:
+                 tri = (tri[0], tri[2], tri[1])
+             facetas.append((list(tri), {}))
+ 
+-    # ---------- tapas: Delaunay con huecos de bombeo (solo superior) ----------
+-    port_centers = [(R_POS_CM * math.cos(math.pi / 4 + math.pi / 2 * k),
+-                     R_POS_CM * math.sin(math.pi / 4 + math.pi / 2 * k))
+-                    for k in range(N_BOMBAS)]
+-
+-    def malla_tapa(z, con_huecos):
++    # ---------- tapas: Delaunay con huecos de bombeo en la tapa de cada bomba ----------
++    def malla_tapa(z, huecos):
+         # puntos: rejilla polar + bordes de huecos densos
+         pts = []
+-        anillos = np.arange(0, R_CM + 0.1, 3.0)
++        # F84: borde de la tapa = exactamente los NS vértices del anillo lateral (geometría estanca). Hasta v3.9.0 la
++        # rejilla polar terminaba en el último múltiplo de 3 cm (54 cm con R = 54,8): quedaba una corona abierta entre la
++        # tapa y la pared lateral por la que el gas escapaba de la cámara (presiones de Molflow bajas en F67).
++        for k in range(NS):
++            a = 2 * math.pi * k / NS
++            pts.append((R_CM * math.cos(a), R_CM * math.sin(a)))
++        anillos = np.arange(0, R_CM - 1.5, 3.0)
+         for r in anillos:
+             n = max(1, int(2 * math.pi * max(r, 1) / 3.0))
+             for k in range(n):
+                 a = 2 * math.pi * k / n + r
+                 pts.append((r * math.cos(a), r * math.sin(a)))
+-        for cx, cy in (port_centers if con_huecos else []):
++        for cx, cy, rp in huecos:
+             for k in range(48):
+                 a = 2 * math.pi * k / 48
+-                pts.append((cx + R_PORT_CM * math.cos(a),
+-                            cy + R_PORT_CM * math.sin(a)))
++                pts.append((cx + rp * math.cos(a), cy + rp * math.sin(a)))
+         pts = np.array(pts)
+         pts = pts[np.hypot(pts[:, 0], pts[:, 1]) <= R_CM + 1e-9]
+         tri = Delaunay(pts)
+@@ -125,8 +140,7 @@ def generar_xml(path_out: str) -> dict:
+             c = p.mean(axis=0)
+             if np.hypot(c[0], c[1]) > R_CM:
+                 continue
+-            if con_huecos and any(np.hypot(c[0] - cx, c[1] - cy) < R_PORT_CM
+-                                  for cx, cy in port_centers):
++            if any(np.hypot(c[0] - cx, c[1] - cy) < rp for cx, cy, rp in huecos):
+                 continue
+             # descartar triángulos que crucen un hueco (arista larga)
+             lados = [np.linalg.norm(p[i] - p[(i + 1) % 3]) for i in range(3)]
+@@ -137,30 +151,30 @@ def generar_xml(path_out: str) -> dict:
+         for p in pts:
+             add_v((p[0], p[1], z))
+         hacia = np.array([0.0, 0.0, -1.0 if z > 0 else 1.0])
+-        for s in caras:
+-            tri_i = [base + i for i in s]
++        for s_ in caras:
++            tri_i = [base + i for i in s_]
+             p = [np.array(verts[i]) for i in tri_i]
+             if not _normal_ok(p[0], p[1], p[2], hacia):
+                 tri_i = [tri_i[0], tri_i[2], tri_i[1]]
+             facetas.append((tri_i, {}))
+ 
+-    malla_tapa(-zh, con_huecos=False)   # tapa inferior sin bombas (EST)
+-    malla_tapa(+zh, con_huecos=True)    # tapa superior con 4 bocas
++    for lado in (-1, +1):
++        malla_tapa(lado * zh, [(b[0], b[1], b[3]) for b in bombas if b[2] == lado])
+ 
+-    # ---------- bocas de bombeo: discos con sticking s (tapa superior) ----------
+-    for cx, cy in port_centers:
+-        centro = add_v((cx, cy, zh))
++    # ---------- bocas de bombeo: discos con sticking s en su tapa ----------
++    for cx, cy, lado, rp, sb in bombas:
++        zz = lado * zh
++        centro = add_v((cx, cy, zz))
+         anillo = []
+         for k in range(48):
+             a = 2 * math.pi * k / 48
+-            anillo.append(add_v((cx + R_PORT_CM * math.cos(a),
+-                                 cy + R_PORT_CM * math.sin(a), zh)))
++            anillo.append(add_v((cx + rp * math.cos(a), cy + rp * math.sin(a), zz)))
+         for k in range(48):
+             tri = [centro, anillo[k], anillo[(k + 1) % 48]]
+             p = [np.array(verts[i]) for i in tri]
+-            if not _normal_ok(p[0], p[1], p[2], np.array([0.0, 0.0, -1.0])):
++            if not _normal_ok(p[0], p[1], p[2], np.array([0.0, 0.0, -float(lado)])):
+                 tri = [tri[0], tri[2], tri[1]]
+-            facetas.append((tri, {"sticking": S_BOMBA}))
++            facetas.append((tri, {"sticking": sb}))
+ 
+     # ---------- fuente H₂ central: disco r=2 cm en z=0, 2 caras ----------
+     centro = add_v((0.0, 0.0, 0.0))
+@@ -169,7 +183,9 @@ def generar_xml(path_out: str) -> dict:
+         a = 2 * math.pi * k / 24
+         anillo.append(add_v((2.0 * math.cos(a), 2.0 * math.sin(a), 0.0)))
+     a_fuente_cm2 = math.pi * 2.0 ** 2
+-    q_fuente_pa = Q_H2_TOTAL * 0.1 / 2  # mitad por cara (2 caras)
++    # F84: en Molflow la desgasificación de una faceta de 2 caras es el TOTAL de la faceta (emite por ambas caras).
++    # Hasta v3.9.0 se dividía entre 2 («mitad por cara») y la fuente inyectaba la mitad del H₂ (absorbido = 50 %).
++    q_fuente_pa = Q_H2_TOTAL * 0.1
+     for k in range(24):
+         tri = [centro, anillo[k], anillo[(k + 1) % 24]]
+         p = [np.array(verts[i]) for i in tri]
+@@ -217,7 +233,7 @@ def generar_xml(path_out: str) -> dict:
+     ET.ElementTree(root).write(path_out, xml_declaration=True,
+                                encoding="utf-8")
+     return {"vertices": len(verts), "facetas": len(final),
+-            "bombas": N_BOMBAS, "path": path_out}
++            "bombas": len(bombas), "path": path_out}
+ 
+ 
+ if __name__ == "__main__":
+-- 
+2.43.0
+

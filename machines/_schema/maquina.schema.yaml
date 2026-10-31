@@ -1,0 +1,22 @@
+# Esquema común de máquina (Cyclotron-SIM). Cada valor lleva fuente: {v: valor, fuente: "<doc>§<sección>" | "EST" | "pendiente_fuente"}
+fabricante: str
+modelo: str
+tipo: "isócrono H- | H+ | superconductor | autoblindado"
+haz:
+  particulas: [p, d]                    # H- extraído por stripper → p
+  energia_MeV: {v: , fuente: }          # fija o rango si hay puerto de energía variable
+  energia_variable: {puertos: [], rango_MeV: [], fuente: }
+  corriente_max_uA: {v: , fuente: }     # por versión comercial
+  doble_haz: {puertos_opuestos: bool, corriente_total_uA: , fuente: }
+puertos:                                # posición angular, blanco montado, puerta blindada opcional
+  - {id: 1, angulo_deg: , blanco: "F18 | Ga68 | Cu64 | C11 | N13 | O15 | solido", puerta_blindada: false}
+blancos:
+  - {isotopo: F18, reaccion: "18O(p,n)", volumen_mL: , corriente_max_uA: , rendimiento_n_p: {v: , fuente: }, espectro: "data/<archivo>.json"}
+geometria:
+  yugo: {}                              # cotas paramétricas → CAD (STEP/STL/GDML/DAGMC)
+  bobina: {}
+  camara_vacio: {}
+masas_t: {total: , apoyos: , huella_mm: }
+requisitos_sitio: {boveda_interior_mm: [], altura_mm: , muros_mm: [], techo_mm: [], densidad_concreto: 2.35, tasa_1m_uSv_h: {}, contacto_uSv_h: {}}
+salidas: [neutronics, fem_struct, fem_mag, vacuum, mc, print, render]
+validacion: [{referencia: , magnitud: , modelo: , medida: , diferencia_pct: }]

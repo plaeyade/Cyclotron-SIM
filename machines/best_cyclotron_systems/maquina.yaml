@@ -1,0 +1,4 @@
+fabricante: Best Cyclotron Systems
+modelo: "B-15p / B-20 / B-35 (pendiente de definir)"
+estado: pendiente_fuente
+fuentes_necesarias: [site planning guide, ficha técnica, plano de puertos, rendimientos de blancos, reporte de blindaje del fabricante]

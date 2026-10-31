@@ -1,0 +1,783 @@
+version: 1
+fuentes:
+  v6_p1_img0.jpeg: VE24 p.1 (render oficial)
+  v6_p7_img0.jpeg: VE24 p.7 (foto máquina real)
+  k2_p4_img0.jpeg: KEY22 p.4 (foto interior)
+metodo: "Genera palette.yaml (paleta de colores del KIUBE) muestreando las imágenes de las fichas técnicas IBA.\n\nMétodo (reproducible; regiones\
+  \ en palette_src/regiones.py, figura de control en docs/paleta_regiones_*.png):\n  0. Las imágenes CMYK de los PDF se pasan a sRGB con el perfil\
+  \ FOGRA39 (sin esto el cobre sale violeta).\n  1. Mediana robusta de cada región (se descarta el 25 % más claro y el 25 % más oscuro: brillos\
+  \ y sombras).\n  2. Corrección de 2 puntos en luz lineal por imagen: el yugo blanco y un hueco en sombra (negro) se suponen\n     neutros. Elimina\
+  \ el viraje azul del etalonaje de las fotos (no lo elimina del todo en las sombras).\n     Metales/colores saturados: se toma la mitad más cromática\
+  \ de la región (sin reflejos blancos).\n  3. Color plano para imprimir/visualizar (sRGB) = muestra balanceada.\n  4. Color base PBR (lineal)\
+  \ para Blender: pinturas y plásticos = muestra linealizada y escalada para que el\n     blanco del yugo tenga albedo 0.80; metales = reflectancia\
+  \ F0 de tablas PBR estándar (el color de una\n     foto de metal es el reflejo del entorno, no el albedo), con el tono verificado contra la\
+  \ foto.\n  5. RAL más cercano por ΔE76 en CIELAB contra una tabla RAL Classic aproximada (sRGB de referencia): ORIENTATIVO,\n     las fichas\
+  \ no indican RAL."
+advertencias:
+- 'Las fichas técnicas no especifican colores ni códigos RAL: todo color es MEDIDO en imágenes (fotos/render con iluminación, compresión JPEG
+  y retoque de marketing) o ESTIMADO.'
+- 'RAL más cercano: orientativo (ΔE76 contra tabla aproximada). Para pintar una maqueta, comparar con carta física.'
+- 'Render oficial y foto real difieren (chaflanes, gatos, marcos, parte superior): variante por defecto = foto real.'
+materiales:
+  pintura_blanca:
+    descripcion: Pintura del yugo (caras exteriores), tapa de la fuente
+    tipo: pintura
+    confianza: alta
+    filamento: PLA blanco (blanco frío)
+    srgb:
+    - 235
+    - 235
+    - 235
+    hex: '#EBEBEB'
+    fuente: VE24 p.7 (foto máquina real) — región 'yugo_blanco_foto' [380, 205, 450, 250]
+    variantes:
+      foto:
+        srgb:
+        - 235
+        - 235
+        - 235
+        srgb_sin_balance:
+        - 225
+        - 236
+        - 244
+        hex: '#EBEBEB'
+        fuente: VE24 p.7 (foto máquina real) — región 'yugo_blanco_foto' [380, 205, 450, 250]
+        base_lineal:
+        - 0.8
+        - 0.8
+        - 0.8
+      render:
+        srgb:
+        - 252
+        - 252
+        - 252
+        srgb_sin_balance:
+        - 251
+        - 250
+        - 253
+        hex: '#FCFCFC'
+        fuente: VE24 p.1 (render oficial) — región 'yugo_blanco_iluminado' [470, 450, 600, 520]
+        base_lineal:
+        - 0.8
+        - 0.8
+        - 0.8
+    ral_aprox: RAL 9003 blanco señales
+    ral_dE76: 2.6
+    pbr:
+      base_lineal:
+      - 0.8
+      - 0.8
+      - 0.8
+      metalico: 0.0
+      rugosidad: 0.3
+      fuente_base: muestra linealizada (blanco del yugo = 0.80)
+      barniz: 0.4
+  banda_chaflan:
+    descripcion: Banda de los chaflanes de 45° del yugo
+    tipo: pintura
+    confianza: media
+    filamento: PLA gris azulado claro / gris plata
+    srgb:
+    - 161
+    - 187
+    - 194
+    hex: '#A1BBC2'
+    fuente: VE24 p.7 (foto máquina real) — región 'banda_chaflan_foto' [300, 163, 420, 170]
+    variantes:
+      foto:
+        srgb:
+        - 161
+        - 187
+        - 194
+        srgb_sin_balance:
+        - 148
+        - 186
+        - 206
+        hex: '#A1BBC2'
+        fuente: VE24 p.7 (foto máquina real) — región 'banda_chaflan_foto' [300, 163, 420, 170]
+        base_lineal:
+        - 0.343
+        - 0.479
+        - 0.519
+      render:
+        srgb:
+        - 127
+        - 127
+        - 130
+        srgb_sin_balance:
+        - 127
+        - 126
+        - 131
+        hex: '#7F7F82'
+        fuente: VE24 p.1 (render oficial) — región 'banda_chaflan_render' [480, 274, 700, 280]
+        base_lineal:
+        - 0.174
+        - 0.174
+        - 0.183
+    ral_aprox: RAL 7040 gris ventana
+    ral_dE76: 11.2
+    pbr:
+      base_lineal:
+      - 0.343
+      - 0.479
+      - 0.519
+      metalico: 0.0
+      rugosidad: 0.35
+      fuente_base: muestra linealizada (blanco del yugo = 0.80)
+    nota: 'Foto: pintura gris azulada. Render: acabado metálico cepillado. Se usa la foto.'
+  marco_puerto:
+    descripcion: Marcos de las ventanas/puertos del yugo
+    tipo: pintura
+    confianza: media
+    filamento: PLA gris azulado claro
+    srgb:
+    - 202
+    - 219
+    - 231
+    hex: '#CADBE7'
+    fuente: VE24 p.7 (foto máquina real) — región 'marco_ventana_foto' [223, 303, 257, 317]
+    variantes:
+      foto:
+        srgb:
+        - 202
+        - 219
+        - 231
+        srgb_sin_balance:
+        - 191
+        - 219
+        - 240
+        hex: '#CADBE7'
+        fuente: VE24 p.7 (foto máquina real) — región 'marco_ventana_foto' [223, 303, 257, 317]
+        base_lineal:
+        - 0.569
+        - 0.682
+        - 0.77
+      render:
+        srgb:
+        - 130
+        - 133
+        - 140
+        srgb_sin_balance:
+        - 130
+        - 132
+        - 141
+        hex: '#82858C'
+        fuente: VE24 p.1 (render oficial) — región 'marco_ventana' [279, 380, 291, 440]
+        base_lineal:
+        - 0.183
+        - 0.193
+        - 0.216
+    ral_aprox: RAL 7047 telegris 4
+    ral_dE76: 9.0
+    pbr:
+      base_lineal:
+      - 0.569
+      - 0.682
+      - 0.77
+      metalico: 0.0
+      rugosidad: 0.35
+      fuente_base: muestra linealizada (blanco del yugo = 0.80)
+    nota: 'Foto: gris azulado claro. Render: gris oscuro (sombra en el render).'
+  gris_azulado:
+    descripcion: Columnas de los gatos de elevación (pintadas en la máquina real)
+    tipo: pintura
+    confianza: media
+    filamento: PLA gris azulado (RAL 7031/5014)
+    srgb:
+    - 116
+    - 149
+    - 161
+    hex: '#7495A1'
+    fuente: VE24 p.7 (foto máquina real) — región 'rail_frontal_azulgris' [512, 300, 540, 400]
+    variantes:
+      foto:
+        srgb:
+        - 116
+        - 149
+        - 161
+        srgb_sin_balance:
+        - 98
+        - 145
+        - 176
+        hex: '#7495A1'
+        fuente: VE24 p.7 (foto máquina real) — región 'rail_frontal_azulgris' [512, 300, 540, 400]
+        base_lineal:
+        - 0.168
+        - 0.289
+        - 0.343
+    ral_aprox: RAL 7001 gris plata
+    ral_dE76: 9.2
+    pbr:
+      base_lineal:
+      - 0.168
+      - 0.289
+      - 0.343
+      metalico: 0.0
+      rugosidad: 0.4
+      fuente_base: muestra linealizada (blanco del yugo = 0.80)
+    nota: En el render oficial son de acero; en la foto real, pintadas gris azulado.
+  gris_azulado_claro:
+    descripcion: Tapas/bombas de la parte superior (foto real)
+    tipo: pintura
+    confianza: baja
+    filamento: PLA gris azulado claro
+    srgb:
+    - 72
+    - 127
+    - 151
+    hex: '#487F97'
+    fuente: VE24 p.7 (foto máquina real) — región 'bomba_superior_gris' [345, 112, 385, 128]
+    variantes:
+      foto:
+        srgb:
+        - 72
+        - 127
+        - 151
+        srgb_sin_balance:
+        - 34
+        - 121
+        - 167
+        hex: '#487F97'
+        fuente: VE24 p.7 (foto máquina real) — región 'bomba_superior_gris' [345, 112, 385, 128]
+        base_lineal:
+        - 0.062
+        - 0.204
+        - 0.298
+    ral_aprox: RAL 5014 azul paloma
+    ral_dE76: 13.4
+    pbr:
+      base_lineal:
+      - 0.062
+      - 0.204
+      - 0.298
+      metalico: 0.0
+      rugosidad: 0.4
+      fuente_base: muestra linealizada (blanco del yugo = 0.80)
+    nota: 'Superficie curva con fuerte viraje azul en la foto: el tono real puede ser más gris.'
+  plastico_negro:
+    descripcion: Faldón inferior (lamas) y cadena portacables
+    tipo: plastico
+    confianza: alta
+    filamento: PLA/PETG negro
+    srgb:
+    - 42
+    - 41
+    - 45
+    hex: '#2A292D'
+    fuente: VE24 p.1 (render oficial) — región 'faldon_negro' [520, 585, 600, 600]
+    variantes:
+      foto:
+        srgb:
+        - 65
+        - 75
+        - 57
+        srgb_sin_balance:
+        - 14
+        - 58
+        - 97
+        hex: '#414B39'
+        fuente: VE24 p.7 (foto máquina real) — región 'cadena_cables_negra' [300, 148, 420, 158]
+        base_lineal:
+        - 0.051
+        - 0.068
+        - 0.039
+      render:
+        srgb:
+        - 42
+        - 41
+        - 45
+        srgb_sin_balance:
+        - 42
+        - 41
+        - 45
+        hex: '#2A292D'
+        fuente: VE24 p.1 (render oficial) — región 'faldon_negro' [520, 585, 600, 600]
+        base_lineal:
+        - 0.019
+        - 0.018
+        - 0.022
+    ral_aprox: RAL 7021 gris negruzco
+    ral_dE76: 4.4
+    pbr:
+      base_lineal:
+      - 0.019
+      - 0.018
+      - 0.022
+      metalico: 0.0
+      rugosidad: 0.45
+      fuente_base: muestra linealizada (blanco del yugo = 0.80)
+    nota: 'Se usa el render: las sombras de la foto real tienen un viraje azul de etalonaje.'
+  acero_cepillado:
+    descripcion: Patas, gatos (render), orejas de izado
+    tipo: metal
+    confianza: media
+    filamento: PLA seda plata
+    srgb:
+    - 110
+    - 113
+    - 116
+    hex: '#6E7174'
+    fuente: VE24 p.1 (render oficial) — región 'pata_acero' [355, 640, 380, 700]
+    variantes:
+      render:
+        srgb:
+        - 110
+        - 113
+        - 116
+        srgb_sin_balance:
+        - 110
+        - 113
+        - 117
+        hex: '#6E7174'
+        fuente: VE24 p.1 (render oficial) — región 'pata_acero' [355, 640, 380, 700]
+    ral_aprox: RAL 7031 gris azulado
+    ral_dE76: 6.0
+    pbr:
+      base_lineal:
+      - 0.56
+      - 0.57
+      - 0.58
+      metalico: 1.0
+      rugosidad: 0.33
+      fuente_base: F0 tabulado (hierro)
+  inox:
+    descripcion: Cámara de vacío, carcasas RF (render), bridas, bombas, strippers
+    tipo: metal
+    confianza: alta
+    filamento: PLA seda plata
+    srgb:
+    - 156
+    - 159
+    - 160
+    hex: '#9C9FA0'
+    fuente: VE24 p.1 (render oficial) — región 'carcasa_rf_inox' [622, 200, 650, 245]
+    variantes:
+      foto:
+        srgb:
+        - 150
+        - 154
+        - 178
+        srgb_sin_balance:
+        - 147
+        - 152
+        - 182
+        hex: '#969AB2'
+        fuente: KEY22 p.4 (foto interior) — región 'anillo_camara_inox' [300, 818, 500, 836]
+      render:
+        srgb:
+        - 156
+        - 159
+        - 160
+        srgb_sin_balance:
+        - 156
+        - 158
+        - 161
+        hex: '#9C9FA0'
+        fuente: VE24 p.1 (render oficial) — región 'carcasa_rf_inox' [622, 200, 650, 245]
+    ral_aprox: RAL 9006 aluminio blanco
+    ral_dE76: 1.8
+    pbr:
+      base_lineal:
+      - 0.6
+      - 0.59
+      - 0.57
+      metalico: 1.0
+      rugosidad: 0.18
+      fuente_base: F0 tabulado (inox)
+    nota: La foto interior refleja el entorno azulado (variante 'foto'); color plano = render (neutro).
+  cobre:
+    descripcion: Dees y vástagos (cobre OFE), cátodos/chimeneas de fuente
+    tipo: metal
+    confianza: alta
+    filamento: PLA seda cobre
+    srgb:
+    - 174
+    - 82
+    - 55
+    hex: '#AE5237'
+    fuente: KEY22 p.4 (foto interior) — región 'dee_cobre' [500, 1092, 700, 1125]
+    variantes:
+      foto:
+        srgb:
+        - 174
+        - 82
+        - 55
+        srgb_sin_balance:
+        - 171
+        - 79
+        - 65
+        hex: '#AE5237'
+        fuente: KEY22 p.4 (foto interior) — región 'dee_cobre' [500, 1092, 700, 1125]
+    ral_aprox: RAL 8023 anaranjado pardo
+    ral_dE76: 12.0
+    pbr:
+      base_lineal:
+      - 0.955
+      - 0.638
+      - 0.538
+      metalico: 1.0
+      rugosidad: 0.25
+      fuente_base: F0 tabulado (cobre)
+  laton:
+    descripcion: Colector de agua de refrigeración (latón)
+    tipo: metal
+    confianza: alta
+    filamento: PLA seda oro/latón
+    srgb:
+    - 209
+    - 187
+    - 130
+    hex: '#D1BB82'
+    fuente: VE24 p.7 (foto máquina real) — región 'colector_laton' [335, 421, 395, 429]
+    variantes:
+      foto:
+        srgb:
+        - 209
+        - 187
+        - 130
+        srgb_sin_balance:
+        - 198
+        - 185
+        - 149
+        hex: '#D1BB82'
+        fuente: VE24 p.7 (foto máquina real) — región 'colector_laton' [335, 421, 395, 429]
+    ral_aprox: RAL 7032 gris guijarro
+    ral_dE76: 17.2
+    pbr:
+      base_lineal:
+      - 0.91
+      - 0.778
+      - 0.423
+      metalico: 1.0
+      rugosidad: 0.3
+      fuente_base: F0 tabulado (laton)
+  acero_mecanizado:
+    descripcion: Polos, sectores, tapón central (interior, acero 1010 mecanizado)
+    tipo: metal
+    confianza: baja
+    filamento: PLA gris plata
+    srgb:
+    - 150
+    - 152
+    - 156
+    hex: '#96989C'
+    fuente: estimado (no visible en las fichas)
+    variantes: {}
+    ral_aprox: RAL 7001 gris plata
+    ral_dE76: 4.1
+    pbr:
+      base_lineal:
+      - 0.56
+      - 0.57
+      - 0.58
+      metalico: 1.0
+      rugosidad: 0.22
+      fuente_base: F0 tabulado (hierro)
+    nota: 'No visible en las fichas (interior): acero mecanizado sin pintar, estimado.'
+  cobre_bobina:
+    descripcion: Bobina principal (cobre + resina, envuelta)
+    tipo: otro
+    confianza: baja
+    filamento: PLA cobre mate
+    srgb:
+    - 150
+    - 85
+    - 50
+    hex: '#965532'
+    fuente: estimado (no visible en las fichas)
+    variantes: {}
+    ral_aprox: RAL 8004 pardo cobrizo
+    ral_dE76: 5.8
+    pbr:
+      base_lineal:
+      - 0.55
+      - 0.28
+      - 0.16
+      metalico: 0.6
+      rugosidad: 0.45
+      fuente_base: estimado
+    nota: 'No visible en las fichas: estimado (conductor de cobre impregnado).'
+  gris_oscuro:
+    descripcion: Actuador de la fuente de iones
+    tipo: pintura
+    confianza: baja
+    filamento: PLA gris oscuro
+    srgb:
+    - 55
+    - 58
+    - 62
+    hex: '#373A3E'
+    fuente: estimado (no visible en las fichas)
+    variantes: {}
+    ral_aprox: RAL 7016 gris antracita
+    ral_dE76: 2.0
+    pbr:
+      base_lineal:
+      - 0.16
+      - 0.17
+      - 0.18
+      metalico: 0.3
+      rugosidad: 0.4
+      fuente_base: estimado
+    nota: Estimado.
+  niobio:
+    descripcion: Cuerpo de los blancos (Nb)
+    tipo: metal
+    confianza: baja
+    filamento: PLA gris plata
+    srgb:
+    - 160
+    - 162
+    - 170
+    hex: '#A0A2AA'
+    fuente: estimado (no visible en las fichas)
+    variantes: {}
+    ral_aprox: RAL 7040 gris ventana
+    ral_dE76: 1.0
+    pbr:
+      base_lineal:
+      - 0.58
+      - 0.58
+      - 0.6
+      metalico: 1.0
+      rugosidad: 0.3
+      fuente_base: F0 tabulado (niobio)
+    nota: 'No visible en las fichas: niobio pulido, estimado.'
+  aluminio:
+    descripcion: Colimadores de los blancos
+    tipo: metal
+    confianza: baja
+    filamento: PLA seda plata
+    srgb:
+    - 200
+    - 202
+    - 206
+    hex: '#C8CACE'
+    fuente: estimado (no visible en las fichas)
+    variantes: {}
+    ral_aprox: RAL 7047 telegris 4
+    ral_dE76: 3.1
+    pbr:
+      base_lineal:
+      - 0.913
+      - 0.922
+      - 0.924
+      metalico: 1.0
+      rugosidad: 0.3
+      fuente_base: F0 tabulado (aluminio)
+    nota: Estimado.
+  cuw:
+    descripcion: Chimeneas de la región central (CuW)
+    tipo: metal
+    confianza: baja
+    filamento: PLA bronce
+    srgb:
+    - 140
+    - 110
+    - 90
+    hex: '#8C6E5A'
+    fuente: estimado (no visible en las fichas)
+    variantes: {}
+    ral_aprox: RAL 1011 beige pardo
+    ral_dE76: 10.6
+    pbr:
+      base_lineal:
+      - 0.45
+      - 0.33
+      - 0.25
+      metalico: 1.0
+      rugosidad: 0.35
+      fuente_base: estimado
+    nota: Estimado.
+  manguera_azul:
+    descripcion: Mangueras de agua y neumática en espiral
+    tipo: plastico
+    confianza: media
+    filamento: PETG/PLA azul
+    srgb:
+    - 65
+    - 150
+    - 227
+    hex: '#4196E3'
+    fuente: VE24 p.7 (foto máquina real) — región 'manguera_azul' [296, 520, 312, 600]
+    variantes:
+      foto:
+        srgb:
+        - 65
+        - 150
+        - 227
+        srgb_sin_balance:
+        - 13
+        - 146
+        - 236
+        hex: '#4196E3'
+        fuente: VE24 p.7 (foto máquina real) — región 'manguera_azul' [296, 520, 312, 600]
+        base_lineal:
+        - 0.051
+        - 0.294
+        - 0.74
+    ral_aprox: RAL 5015 azul cielo
+    ral_dE76: 15.0
+    pbr:
+      base_lineal:
+      - 0.051
+      - 0.294
+      - 0.74
+      metalico: 0.0
+      rugosidad: 0.5
+      fuente_base: muestra linealizada (blanco del yugo = 0.80)
+  valvula_roja:
+    descripcion: Manillas de las válvulas de bola del colector
+    tipo: pintura
+    confianza: media
+    filamento: PLA rojo
+    srgb:
+    - 231
+    - 103
+    - 57
+    hex: '#E76739'
+    fuente: VE24 p.7 (foto máquina real) — región 'valvula_roja' [332, 447, 345, 455]
+    variantes:
+      foto:
+        srgb:
+        - 231
+        - 103
+        - 57
+        srgb_sin_balance:
+        - 221
+        - 93
+        - 97
+        hex: '#E76739'
+        fuente: VE24 p.7 (foto máquina real) — región 'valvula_roja' [332, 447, 345, 455]
+        base_lineal:
+        - 0.77
+        - 0.131
+        - 0.039
+    ral_aprox: RAL 3000 rojo vivo
+    ral_dE76: 22.1
+    pbr:
+      base_lineal:
+      - 0.77
+      - 0.131
+      - 0.039
+      metalico: 0.0
+      rugosidad: 0.4
+      fuente_base: muestra linealizada (blanco del yugo = 0.80)
+    nota: La corrección del viraje azul lo desplaza hacia naranja; el rojo real puede ser más puro (RAL 3000/3020).
+  transmisor_azul:
+    descripcion: Transmisores / caudalímetros de los ramales
+    tipo: plastico
+    confianza: media
+    filamento: PLA azul
+    srgb:
+    - 64
+    - 132
+    - 200
+    hex: '#4084C8'
+    fuente: VE24 p.7 (foto máquina real) — región 'transmisor_azul' [377, 560, 390, 585]
+    variantes:
+      foto:
+        srgb:
+        - 64
+        - 132
+        - 200
+        srgb_sin_balance:
+        - 10
+        - 126
+        - 211
+        hex: '#4084C8'
+        fuente: VE24 p.7 (foto máquina real) — región 'transmisor_azul' [377, 560, 390, 585]
+        base_lineal:
+        - 0.049
+        - 0.222
+        - 0.556
+    ral_aprox: RAL 5015 azul cielo
+    ral_dE76: 7.6
+    pbr:
+      base_lineal:
+      - 0.049
+      - 0.222
+      - 0.556
+      metalico: 0.0
+      rugosidad: 0.4
+      fuente_base: muestra linealizada (blanco del yugo = 0.80)
+  caja_electrica_gris:
+    descripcion: Caja eléctrica (armario de chapa)
+    tipo: pintura
+    confianza: media
+    filamento: PLA gris claro / blanco
+    srgb:
+    - 234
+    - 235
+    - 235
+    hex: '#EAEBEB'
+    fuente: VE24 p.7 (foto máquina real) — región 'caja_electrica_gris' [200, 490, 240, 560]
+    variantes:
+      foto:
+        srgb:
+        - 234
+        - 235
+        - 235
+        srgb_sin_balance:
+        - 224
+        - 236
+        - 244
+        hex: '#EAEBEB'
+        fuente: VE24 p.7 (foto máquina real) — región 'caja_electrica_gris' [200, 490, 240, 560]
+        base_lineal:
+        - 0.792
+        - 0.8
+        - 0.8
+    ral_aprox: RAL 9003 blanco señales
+    ral_dE76: 2.6
+    pbr:
+      base_lineal:
+      - 0.792
+      - 0.8
+      - 0.8
+      metalico: 0.0
+      rugosidad: 0.4
+      fuente_base: muestra linealizada (blanco del yugo = 0.80)
+    nota: Medido casi blanco; los armarios industriales suelen ser RAL 7035 (gris luminoso).
+  hormigon:
+    descripcion: Autoblindaje
+    tipo: otro
+    confianza: baja
+    filamento: PLA gris piedra
+    srgb:
+    - 170
+    - 168
+    - 160
+    hex: '#AAA8A0'
+    fuente: estimado (no visible en las fichas)
+    variantes: {}
+    ral_aprox: RAL 9006 aluminio blanco
+    ral_dE76: 4.7
+    pbr:
+      base_lineal:
+      - 0.62
+      - 0.61
+      - 0.58
+      metalico: 0.0
+      rugosidad: 0.85
+      fuente_base: estimado
+    nota: 'Las fichas no muestran el autoblindaje: estimado.'
+extra_foto:
+  caja_azul_interior:
+    srgb:
+    - 88
+    - 107
+    - 149
+    hex: '#586B95'
+    fuente: KEY22 p.4 (foto interior) — región 'caja_azul_interior'
+    ral_aprox: RAL 5014 azul paloma
+    ral_dE76: 8.0
+  superficie_verdosa_interior:
+    srgb:
+    - 177
+    - 169
+    - 127
+    hex: '#B1A97F'
+    fuente: KEY22 p.4 (foto interior) — región 'superficie_verdosa'
+    ral_aprox: RAL 7032 gris guijarro
+    ral_dE76: 8.8

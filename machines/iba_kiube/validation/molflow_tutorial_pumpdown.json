@@ -1,0 +1,12 @@
+{
+ "caso": "Molflow+ tutorial 'Time-dependent examples', ejemplo 1 (tubo L/R=1, inyección 10–20 ms)",
+ "R_cm": 1.0,
+ "gas": "N2",
+ "P_estacionaria_mbar": 4.9363259340633226e-05,
+ "P_referencia_mbar": 5e-05,
+ "dif_rel": -0.012734813187335492,
+ "tau_analitico_ms": 1.5707963267948966,
+ "tau_TPMC_ms": 1.5580420470797758,
+ "particulas": 200000,
+ "vbar_m_s": 470.8180268361133
+}

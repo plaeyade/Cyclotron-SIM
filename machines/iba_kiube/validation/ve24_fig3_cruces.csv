@@ -1,0 +1,15 @@
+# do Carmo et al., Instruments 8 (2024) 38, Fig.3 — trayectorias calculadas por IBA, digitalizadas (pixel → m con la grilla de 0.2 m)
+# azimut [deg] donde cada trayectoria cruza el radio r; los 4 puertos equivalentes por simetría de 90° promediados y referidos al centro de colina (45° + k·90°)
+# precisión ~ ±0.8° (ancho de línea)
+T_MeV,sistema,r_m,dphi_hill_deg
+18,0,0.60,8.7
+18,0,0.70,13.6
+18,0,0.82,17.7
+18,1,0.60,32.2
+18,1,0.70,38.3
+18,1,0.82,42.9
+13,0,0.60,8.1
+13,0,0.70,10.0
+13,0,0.82,11.4
+13,1,0.70,35.9
+13,1,0.82,38.2

@@ -1,0 +1,16 @@
+out/
+dist/
+__pycache__/
+*.pyc
+*.bin
+*.h5m
+mc_benchmark/build/
+# binarios Geant4 (se compilan con mc_benchmark/compilar.sh)
+machines/*/mc_benchmark/bunker_iba
+machines/*/mc_benchmark/bunker_mapa
+machines/*/mc_benchmark/bunker_mapa2
+machines/*/mc_benchmark/bunker_mapa_v1b
+machines/*/mc_benchmark/bunker_techo
+machines/*/mc_benchmark/losa_tvl
+machines/*/mc_benchmark/srg_bench
+*.gdml

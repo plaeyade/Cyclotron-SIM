@@ -1,0 +1,24 @@
+{
+ "energia_MeV": 18.0,
+ "gamma": 1.0191633290535231,
+ "beta": 0.19300893521504034,
+ "rho_colina_m": 0.28665768476364517,
+ "perdida_por_vuelta_eV": 1.447025752058631e-10,
+ "energia_critica_eV": 1.0930637871607967e-06,
+ "frecuencia_fundamental_MHz": 20.328352921819683,
+ "particulas_circulando": 8415680072.526135,
+ "potencia_total_radiada_W": 3.9662315322025025e-12,
+ "conclusion": "No: la radiación de un protón/H⁻ de 18 MeV (γ = 1.019) es radiación de ciclotrón de muy baja frecuencia (armónicos de 20 MHz, energía crítica ~1e-6 eV). Pierde ~1e-10 eV por vuelta y el haz completo radia ~1e-11 W; los fotones no pueden fotodesorber gas (umbral ~10 eV). SynRad+ es para anillos de electrones o protones de TeV.",
+ "synradg4": "SynradG4 (Natochii et al., arXiv:2408.11709) extiende Geant4 para fondos de radiación de sincrotrón de haces de ELECTRONES de GeV (ePIC/EIC): emisión con G4SynchrotronRadiation y reflexión de rayos X en las paredes. Para H⁻/p de 18 MeV, los fotones (≈1e-6 eV, ondas de radio de 20 MHz) están 9 órdenes por debajo del corte de producción de gammas de Geant4 (~1 keV) y no hay nada que trazar: implementarlo daría cero. Lo que sí conviene simular en Geant4/OpenMC (ya preparado en el LOD mc): los H⁰ de stripping en gas que golpean la pared (perdidas_h0_impactos.csv) y los neutrones de los blancos.",
+ "lo_que_si_importa": {
+  "desorcion_por_perdidas_mbar_l_s": [
+   5.851414757306965e-06,
+   5.8514147573069645e-05
+  ],
+  "eta_moleculas_por_ion": [
+   1.0,
+   10.0
+  ],
+  "nota": "H⁰ que chocan con la pared (15 % del haz): carga de gas 3–4 órdenes por debajo de los 0.034 mbar·l/s de H₂ de la fuente; incluible en el TPMC como fuente en los puntos de perdidas_h0_impactos.csv"
+ }
+}

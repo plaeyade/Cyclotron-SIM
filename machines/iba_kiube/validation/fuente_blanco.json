@@ -1,0 +1,91 @@
+{
+ "n_emitidas": 800,
+ "n_salida_rc": 252,
+ "n_lamina": 140,
+ "motivos_acel": {
+  "z": 97,
+  "r": 9,
+  "frenada": 5,
+  "max_vueltas": 1,
+  "lamina": 140
+ },
+ "perdidas_rc": {
+  "z": 237,
+  "metal": 311,
+  "r": 252
+ },
+ "fraccion_DC": [
+  {
+   "etapa": "emitido en la ventana −80…+40° (DC × 1/3)",
+   "pct": 33.33333333333333
+  },
+  {
+   "etapa": "sale de la región central (r 126 mm)",
+   "pct": 10.5
+  },
+  {
+   "etapa": "llega a la lámina (sin gas)",
+   "pct": 5.833333333333333
+  },
+  {
+   "etapa": "llega a la lámina (con gas, −15 %)",
+   "pct": 4.958333333333333
+  },
+  {
+   "etapa": "dentro de la ventana del blanco Ø20",
+   "pct": 2.3374999999999995
+  },
+  {
+   "etapa": "pasa el colimador Ø9",
+   "pct": 0.9916666666666666
+  }
+ ],
+ "nivel_scan": {
+  "nivel": [
+   1.0099,
+   1.0101,
+   1.0103,
+   1.0105,
+   1.0107
+  ],
+  "pct_lamina": [
+   8.695652173913043,
+   50.98814229249012,
+   54.940711462450594,
+   35.573122529644266,
+   0.7905138339920948
+  ]
+ },
+ "extraccion": {
+  "puerto": 0,
+  "lamina": {
+   "phi_deg": 32.22692058701069,
+   "r_in": 0.46300260457785947,
+   "r_out": 0.4730026045778595
+  },
+  "dphi_lamina_ajuste_deg": 1.214384597197346,
+  "n": 140,
+  "T_MeV": [
+   17.91073955528542,
+   0.221189667041602
+  ],
+  "sigma_x_mm": 7.22489790827244,
+  "sigma_z_mm": 10.497083975488405,
+  "sigma_xp_mrad": 13.635179488668452,
+  "sigma_zp_mrad": 14.685437775263162,
+  "centro_mm": [
+   -0.8347199806347996,
+   0.2617436776770567
+  ],
+  "frac_colimador": 0.2,
+  "frac_ventana": 0.4714285714285714,
+  "frac_yugo": 0.0,
+  "theta0_lamina_mrad": 1.1034147334989712,
+  "fase_lamina": [
+   -133.18874549460557,
+   65.40441135049481
+  ]
+ },
+ "perdidas_z_14_18_MeV": 69,
+ "perdidas_z": 97
+}
