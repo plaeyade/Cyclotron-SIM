@@ -9,7 +9,7 @@ git clone https://github.com/plaeyade/Cyclotron-SIM.git
 cd Cyclotron-SIM
 docker build -t cyclotron-sim-mc -f hpc/Dockerfile .
 mkdir salida
-docker run --rm -v "${PWD}\salida:/salida" cyclotron-sim-mc todas 0 200      # todas las caras, todos los núcleos, 200 historias por lote
+docker run -d --name mc_f90 --cpus 22 -v "${PWD}\salida:/salida" cyclotron-sim-mc todas 22 200 22   # 22 núcleos, 200 historias/lote, 22 lotes/cara
 ```
 
 Variantes: `... cyclotron-sim-mc techo 0 200 32` (solo techo, 32 lotes); `... todas 0 200 0 td250bajoH.txt` (TD-250 bajo en hidrógeno); `... todas 0 200 0 td250std.txt`.
