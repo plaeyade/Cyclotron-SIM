@@ -10,7 +10,8 @@ import leer_iba
 import analizar_iba as A
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-D = ROOT / "out/mc_f90/res"
+import os
+D = pathlib.Path(os.environ.get("MC_RES", ROOT / "out/mc_f90/res"))
 Y_BON, Y_IBA = 4.930679728490592e-3, 6.9e-3
 IBA_T9 = {200: 5.43, 220: 1.19, 230: 0.6}           # µSv/h contacto, KIUBE 300 doble haz 2×150 µA, concreto 2.35, frente al blanco
 IBA_T8_1m = {"frente_0": 1.8e8, "90": 0.41e8}         # µSv/h a 1 m del ciclotrón (dentro de la bóveda), doble haz 2×150
