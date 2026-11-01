@@ -1,0 +1,46 @@
+{
+ "contrato": "cyclotron-sim/flujo_aire@1",
+ "maquina": "IBA Cyclone KIUBE 300",
+ "configuracion": "dual235",
+ "corriente_uA": 300.0,
+ "rendimiento_n_p": 0.0069,
+ "lotes": 57,
+ "phi_termico_aire_n_cm2_s": {
+  "media": 4920248.708464672,
+  "mediana": 4695501.969215236,
+  "p95": 9196556.435626516,
+  "max": 16749002.976284998
+ },
+ "volumen_promediado": {
+  "interior_mm": {
+   "x": [
+    -1970,
+    1970
+   ],
+   "y": [
+    -2000,
+    2000
+   ],
+   "z": [
+    -1120,
+    1380
+   ]
+  },
+  "excluida_maquina_mm": {
+   "x": [
+    -1100,
+    1100
+   ],
+   "y": [
+    -1100,
+    1100
+   ],
+   "z": [
+    -1120,
+    1300
+   ]
+  }
+ },
+ "uso": "RadShieldMx ventilación Ar-41: usar la media; p95 como cota conservadora",
+ "fuente": "Geant4 11.4.3 QGSP_BIC_HP, bunker_iba F90 (sin puertas de blanco)"
+}
