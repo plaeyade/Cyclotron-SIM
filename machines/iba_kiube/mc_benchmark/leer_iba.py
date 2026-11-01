@@ -1,5 +1,12 @@
 """Lectura de mallas bunker_iba (RPOS F89). H*(10) en µSv/h a 300 µA en un blanco."""
-import numpy as np, glob
+import numpy as np, glob, os
+
+
+def completa(f):
+    """True si la malla está entera (un lote en escritura o truncado se omite, no rompe el análisis)."""
+    with open(f, "rb") as fh:
+        nx, ny, nz = np.frombuffer(fh.read(12), np.int32)
+    return os.path.getsize(f) == 12 + 56 + 5 * 4 * int(nx) * int(ny) * int(nz)
 NPS = 300 * 6.2415e12 * 4.930679728490592e-3          # n/s
 def leer(f):
     with open(f, "rb") as fh:
