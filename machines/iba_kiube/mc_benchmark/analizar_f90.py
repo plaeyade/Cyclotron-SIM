@@ -18,11 +18,15 @@ IBA_T8_1m = {"frente_0": 1.8e8, "90": 0.41e8}         # µSv/h a 1 m del ciclotr
 
 
 def cargar(tag, cara):
-    fs = sorted(glob.glob(str(D / f"{tag}_{cara}_s*_malla.bin")))
-    ok = [f for f in fs if leer_iba.completa(f)]
-    if len(ok) < len(fs):
-        print(f"aviso: {len(fs) - len(ok)} malla(s) incompleta(s) de {cara} omitidas (lote en escritura)")
-    return [leer_iba.leer(f) for f in ok]
+    Ms, omitidas = [], []
+    for f in sorted(glob.glob(str(D / f"{tag}_{cara}_s*_malla.bin"))):
+        try:
+            Ms.append(leer_iba.leer(f))
+        except ValueError:          # lote en escritura o truncado: se omite, no rompe el análisis
+            omitidas.append(pathlib.Path(f).name)
+    if omitidas:
+        print(f"aviso: mallas incompletas omitidas en {cara}: {omitidas}")
+    return Ms
 
 
 def interp_log(P, z, key="parche_max"):
