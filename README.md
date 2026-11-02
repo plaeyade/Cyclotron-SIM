@@ -1,4 +1,19 @@
+<!-- encabezado-gamma -->
+<div align="center">
+
 # Cyclotron-SIM
+
+**Gemelo físico de ciclotrones médicos: CAD, haz, vacío, FEM y Monte Carlo de la bóveda**
+
+![Geant4](https://img.shields.io/badge/Geant4-11.4.3-0B3D91) ![física](https://img.shields.io/badge/f%C3%ADsica-QGSP__BIC__HP-informational) ![Python](https://img.shields.io/badge/Python-3.12-3776AB) ![licencia](https://img.shields.io/badge/licencia-propietaria-lightgrey)
+
+[Objetivos](#objetivos) · [Máquinas](#máquinas) · [Contratos exportados](#contratos-exportados) · [Contenedor de cómputo Monte Carlo](#contenedor-de-cómputo-monte-carlo) · [MC de la bóveda (F89 → F90)](#mc-de-la-bóveda-f89--f90) · [Ecosistema GAMMA](#ecosistema-gamma)
+
+</div>
+
+> [!IMPORTANT]
+> Repositorio privado, de uso interno. Los documentos fuente son propiedad del usuario, que tiene los derechos de uso.
+<!-- /encabezado-gamma -->
 
 Modelos CAD y físicos de ciclotrones médicos, independientes del fabricante:
 - geometría paramétrica;
@@ -9,9 +24,6 @@ Modelos CAD y físicos de ciclotrones médicos, independientes del fabricante:
 
 Es la parte física de B.20 (Digital Twin) del plan canónico de GAMMA, y la fuente de datos del
 ciclotrón para Radiopharma OS, RadShieldMx y Zumaya-AI.
-
-> Repositorio privado, de uso interno. Los documentos fuente son propiedad del usuario, que tiene
-> los derechos de uso.
 
 ## Objetivos
 
@@ -78,7 +90,10 @@ docker run -d --name mc_f90 --cpus 22 -v "${PWD}\salida:/salida" cyclotron-sim-m
   exterior unas 10 veces frente a la SRG.
 - **F90** las quita (no se van a comprar) y usa doble haz de 2 × 150 µA con el rendimiento IBA de
   6.9 × 10⁻³ n/p.
-- **Estado al 01-11-2026:** 57 de 88 lotes (este 15, oeste 13, sur 12, techo 17).
+- **Estado al 02-11-2026:** 69 de 88 lotes (este 16, oeste 15, sur 16, techo 22). Los 19
+  restantes corren en paralelo desde el reinicio por falta de memoria del 01-11; su duración
+  varía de 3 a más de 10 h porque el mapa de importancia tiene saltos de 10¹¹–10¹³ entre celdas
+  vecinas (Geant4 recomienda un cociente entre 0.25 y 4) y el splitting se dispara.
   - Comparación con la tabla 9 de la SRG: el cociente IBA/MC queda entre 1.2 y 1.9.
   - Espesores TD-250 interinos: este 2.08 m, oeste 1.95 m, sur 1.82 m y techo 1.95 m (techo
     convergido).
@@ -112,6 +127,38 @@ Más salidas (neutrónica, FEM estructural y magnético, vacío, impresión, ren
 
 ## Pendientes
 
-- Terminar el MC F90 (31 lotes) y correr la variante TD-250 bajo en hidrógeno.
+- Terminar el MC F90 (19 lotes) y correr la variante TD-250 bajo en hidrógeno.
+- Suavizar el mapa de importancia (cociente ≤ 4 entre celdas vecinas) y agregar puntos de
+  control por lote antes de la siguiente campaña.
 - Documentos IBA por integrar: reporte de blindaje MC, plano de puertos con blancos asignados y
   datos de las puertas blindadas. Van en `machines/iba_kiube/fuentes/` y se citan en `params.yaml`.
+
+## Ecosistema GAMMA
+
+Cinco repositorios privados unidos por contratos JSON versionados, no por imports. Este repositorio
+está resaltado.
+
+```mermaid
+flowchart LR
+  G["GAMMA-AI<br/><sub>motor científico · núcleo clínico</sub>"]
+  R["RadShieldMx<br/><sub>blindajes y memoria CNSNS</sub>"]
+  P["Radiopharma OS<br/><sub>producción · QC · liberación</sub>"]
+  C["Cyclotron-SIM<br/><sub>gemelo físico · Monte Carlo</sub>"]
+  Z["Zumaya-AI<br/><sub>instalación · búnker · estructura</sub>"]
+  G -- "gamma/evidencia@1" --> R
+  G -- "gamma/evidencia@1" --> P
+  C -- "termino_fuente@1" --> P
+  C -- "flujo_aire@1" --> R
+  Z -- "presupuesto_operativo@1" --> P
+  Z -- "planos · materiales" --> C
+  R & P & C & Z -. "gamma/ingesta@1" .-> G
+  classDef actual fill:#1f6feb,stroke:#0b3d91,color:#fff,stroke-width:2px
+  class C actual
+```
+
+## Confidencialidad y licencia
+
+Software propietario de uso individual del titular; no es de código abierto ni se distribuye.
+Los documentos fuente son propiedad del titular, que tiene los derechos de uso. Ningún dato de
+pacientes reales entra a este repositorio: los datos clínicos permanecen anonimizados y fuera de
+GitHub. Las salidas técnicas no sustituyen la revisión ni la firma del profesional responsable.
