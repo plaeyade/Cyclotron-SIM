@@ -7,131 +7,108 @@
 
 ![Geant4](https://img.shields.io/badge/Geant4-11.4.3-0B3D91) ![física](https://img.shields.io/badge/f%C3%ADsica-QGSP__BIC__HP-informational) ![Python](https://img.shields.io/badge/Python-3.12-3776AB) ![licencia](https://img.shields.io/badge/licencia-propietaria-lightgrey)
 
-[Objetivos](#objetivos) · [Máquinas](#máquinas) · [Contratos exportados](#contratos-exportados) · [Contenedor de cómputo Monte Carlo](#contenedor-de-cómputo-monte-carlo) · [MC de la bóveda (F89 → F90)](#mc-de-la-bóveda-f89--f90) · [Ecosistema GAMMA](#ecosistema-gamma)
+[Qué aporta](#qué-aporta) · [Capacidades](#capacidades) · [Monte Carlo de la bóveda (F90)](#monte-carlo-de-la-bóveda-f90) · [Sustento científico](#sustento-científico) · [Integración con el ecosistema](#integración-con-el-ecosistema) · [Ecosistema GAMMA](#ecosistema-gamma)
 
 </div>
 
 > [!IMPORTANT]
-> Repositorio privado, de uso interno. Los documentos fuente son propiedad del usuario, que tiene los derechos de uso.
+> Repositorio privado, de uso individual del titular. Los documentos fuente son propiedad del titular, que tiene los derechos de uso.
 <!-- /encabezado-gamma -->
 
-Modelos CAD y físicos de ciclotrones médicos, independientes del fabricante:
-- geometría paramétrica;
-- haz y extracción;
-- vacío (Molflow+);
-- FEM estructural, magnético y de RF;
-- Monte Carlo (Geant4/OpenMC) del término fuente y de la bóveda.
+Cyclotron-SIM es el gemelo físico de ciclotrones médicos, independiente del fabricante: geometría
+paramétrica, haz y extracción, vacío, análisis estructural, magnético y de radiofrecuencia por
+elemento finito, y Monte Carlo del término fuente y de la bóveda.
 
-Es la parte física de B.20 (Digital Twin) del plan canónico de GAMMA, y la fuente de datos del
-ciclotrón para Radiopharma OS, RadShieldMx y Zumaya-AI.
+## Qué aporta
 
-## Objetivos
+- **Física validada contra el fabricante.** El Monte Carlo de la bóveda del IBA KIUBE se compara con
+  la Site Requirement Guide (Tabla 9): el cociente fabricante/MC queda entre 1.2 y 1.9.
+- **Cada cota con su fuente.** Los parámetros de cada máquina llevan su documento o se marcan como
+  estimados o pendientes de fuente (`machines/_schema/maquina.schema.yaml`).
+- **Datos para las demás plataformas sin acoplar código.** El término fuente y el flujo de neutrones
+  salen como contratos JSON versionados.
 
-1. **Modelo trazable de cada máquina.** Cada cota lleva su fuente (`DS`, SRG, paper) o se marca
-   como `EST` o `pendiente_fuente` (`machines/_schema/maquina.schema.yaml`).
-2. **Término fuente y dosis validados contra el fabricante.** El MC de la bóveda del KIUBE se
-   compara con la SRG Rev G de IBA.
-3. **Exportar contratos JSON** para las demás plataformas, sin que tengan que importar código.
+## Capacidades
 
-## Máquinas
-
-| Carpeta | Máquina | Estado |
+| Dominio | Herramienta | Salida |
 |---|---|---|
-| `machines/iba_kiube` | IBA Cyclone® KIUBE 18 MeV (100–300 µA, doble haz, puertos VE 13–17 MeV) | Modelo v0.36; gemelo físico (antes F63–F85 de RPOS); MC de la bóveda F90 en curso |
-| `machines/ge_pettrace` | GE PETtrace | Pendiente de fuentes |
-| `machines/best_cyclotron_systems` | Best Cyclotron Systems | Pendiente de fuentes |
-| `machines/abt_bg75` | ABT BG-75 | Pendiente de fuentes |
-| `machines/lbt_longevous` | Longevous Beam Technologies | Pendiente de fuentes |
+| Geometría | Python paramétrico → GDML (Geant4) y DAGMC | Modelos de máquina y bóveda |
+| Monte Carlo | Geant4 11.4.3, QGSP_BIC_HP, muestreo por importancia | Dosis por cara del búnker, flujo térmico en el aire |
+| Vacío | Molflow+ (TPMC) | Presión y stripping de gas |
+| Haz | Órbita central y extracción | Parámetros del haz por puerto |
+| Elemento finito | Estructural, magnético y RF | Esfuerzos, campo y modos |
+| Visualización | Render e impresión 3D | Figuras y modelos físicos |
 
-```
-machines/iba_kiube/
-  params.yaml, materials.yaml   parámetros con fuente
-  build.py, render*.py          GDML/DAGMC, renders
-  mc_benchmark/                 Geant4 bunker_iba (C++), lectura y análisis F90
-  resultados/mc_f90/            configuraciones del MC
-  gemelo_fisico/                stripping de gas, vacío TPMC, órbita central, data/kiube, tools
-  export/                       contratos JSON (ver abajo)
-  fuentes/                      SRG, propuesta IBA y papers → indexados en GAMMA
-hpc/                            imagen Docker de cómputo MC y lanzador paralelo
-herramientas/manifiesto_gamma.py   manifiesto gamma/ingesta@1 de las fuentes
-rpos_fases/                     parches históricos F81–F85 (referencia)
-```
+| Máquina | Estado |
+|---|---|
+| IBA Cyclone KIUBE 18 MeV (100–300 µA, doble haz) | Modelo completo; Monte Carlo F90 de la bóveda en curso |
+| GE PETtrace, Best, ABT BG-75, LBT | Estructura lista; pendientes de fuentes |
 
-## Contratos exportados
+## Monte Carlo de la bóveda (F90)
+
+Doble haz de 2 × 150 µA con el rendimiento IBA de 6.9 × 10⁻³ n/p y sin puertas blindadas en los
+puertos. 69 de 88 lotes completos al 02-11-2026. Espesores interinos de tabique TD-250: este 2.08 m,
+oeste 1.95 m, sur 1.82 m, techo 1.95 m (convergido). Flujo térmico en el aire a 300 µA: media
+4.9 × 10⁶ n/cm²/s.
+
+Los lotes restantes tardan más porque el mapa de importancia tiene saltos muy grandes entre celdas
+vecinas; la siguiente campaña usará un mapa gradual (cociente ≤ 4) y puntos de control por lote.
+
+## Sustento científico
+
+| Fuente | Uso |
+|---|---|
+| IBA Cyclone KIUBE SRG (MID 55672 Rev G) y propuesta técnica | Geometría, término fuente y validación |
+| Geant4 (Agostinelli et al., 2003; Allison et al., 2016), datos G4NDL | Transporte de neutrones y fotones |
+| IAEA SRS-47 | Marco de blindaje de ciclotrones |
+| Molflow+ (CERN) | Vacío por Monte Carlo de partículas de prueba |
+
+## Integración con el ecosistema
 
 | Archivo | Contrato | Consumidor |
 |---|---|---|
-| `machines/iba_kiube/export/termino_fuente.json` | `cyclotron-sim/termino_fuente@1` | Radiopharma OS (plan de producción) |
-| `machines/iba_kiube/export/flujo_aire_boveda.json` | `cyclotron-sim/flujo_aire@1` | RadShieldMx (ventilación Ar-41) |
-| `gamma-ingesta.json` | `gamma/ingesta@1` (24 fuentes) | GAMMA-AI (corpus científico) |
+| `machines/iba_kiube/export/termino_fuente.json` | `cyclotron-sim/termino_fuente@1` | Radiopharma OS |
+| `machines/iba_kiube/export/flujo_aire_boveda.json` | `cyclotron-sim/flujo_aire@1` | RadShieldMx |
+| `gamma-ingesta.json` | `gamma/ingesta@1` | GAMMA-AI |
 
-## Contenedor de cómputo Monte Carlo
+Diferencia con los demás repositorios: aquí se **simula** la física. Zumaya-AI aporta el edificio,
+RadShieldMx el cálculo analítico y la memoria, y Radiopharma OS la operación.
 
-| Imagen | Base | Contenido |
-|---|---|---|
-| `cyclotron-sim-mc` (`hpc/Dockerfile`) | `mambaorg/micromamba:1.5.10` | Geant4 **11.4.3** con física QGSP_BIC_HP y datos HP, Python 3.12, `bunker_iba` compilado con `-O3` |
+## Contenedor de cómputo
+
+| Imagen | Contenido |
+|---|---|
+| `cyclotron-sim-mc` (`hpc/Dockerfile`) | Geant4 11.4.3 con datos HP, Python 3.12 y el benchmark de la bóveda compilado con `-O3` |
 
 ```powershell
 docker build -t cyclotron-sim-mc -f hpc/Dockerfile .
 docker run -d --name mc_f90 --cpus 22 -v "${PWD}\salida:/salida" cyclotron-sim-mc todas 22 200 22
 ```
 
-- Cada lote es un proceso de un solo hilo con su semilla. Se puede detener y relanzar
-  (`docker start mc_f90`): los lotes con `*_regiones.txt` ya escritos se saltan.
-- **La GPU no ayuda**, porque Geant4 transporta en CPU. Lo que acelera es el número de núcleos.
-- **Memoria:** con 22 lotes en paralelo el contenedor usa unos 23 GB. En una VM de Docker de
-  31 GB no hay que correr al mismo tiempo otro contenedor pesado sin tope de memoria: el
-  01-11-2026 la VM se quedó sin memoria y detuvo el MC.
-- Detalle en `hpc/README.md`.
+Cada lote es un proceso independiente con su semilla; los lotes terminados se saltan al relanzar.
+Geant4 transporta en CPU: acelera el número de núcleos, no la GPU. Con 22 lotes el contenedor usa
+unos 23 GB de memoria.
 
-## MC de la bóveda (F89 → F90)
-
-- **F89** incluía las puertas blindadas opcionales de IBA en T1/T5 y subestimaba la dosis
-  exterior unas 10 veces frente a la SRG.
-- **F90** las quita (no se van a comprar) y usa doble haz de 2 × 150 µA con el rendimiento IBA de
-  6.9 × 10⁻³ n/p.
-- **Estado al 02-11-2026:** 69 de 88 lotes (este 16, oeste 15, sur 16, techo 22). Los 19
-  restantes corren en paralelo desde el reinicio por falta de memoria del 01-11; su duración
-  varía de 3 a más de 10 h porque el mapa de importancia tiene saltos de 10¹¹–10¹³ entre celdas
-  vecinas (Geant4 recomienda un cociente entre 0.25 y 4) y el splitting se dispara.
-  - Comparación con la tabla 9 de la SRG: el cociente IBA/MC queda entre 1.2 y 1.9.
-  - Espesores TD-250 interinos: este 2.08 m, oeste 1.95 m, sur 1.82 m y techo 1.95 m (techo
-    convergido).
-  - Flujo térmico en el aire a 300 µA: media 4.9 × 10⁶ n/cm²/s y p95 9.2 × 10⁶ n/cm²/s
-    (`flujo_aire_f90.py`).
-- Análisis: `mc_benchmark/analizar_f90.py`. Cuando terminen los 88 lotes se actualizan el informe
-  y los contratos.
-
-## Uso rápido (KIUBE)
+## Uso
 
 ```bash
 cd machines/iba_kiube
-python -m pytest                 # modelo y gemelo físico
-python build.py --lod mc         # GDML Geant4 + DAGMC
-mc_benchmark/compilar.sh         # benchmarks Geant4 en local
+python -m pytest
+python build.py --lod mc
 python mc_benchmark/analizar_f90.py <salida>
 ```
 
-Más salidas (neutrónica, FEM estructural y magnético, vacío, impresión, render) en
-`machines/iba_kiube/README.md`.
+## Colaboraciones
 
-## Relación con otros repos
+Abierto a colaboradores invitados: físicos de aceleradores y de Monte Carlo (Geant4, OpenMC, FLUKA)
+e ingenieros de vacío y radiofrecuencia. Los datos del fabricante se comparten sólo bajo
+confidencialidad.
 
-- **GAMMA-AI:** motor científico. Indexa `fuentes/` (SRG, propuesta IBA, papers) y responde con
-  citas verificables.
-- **Radiopharma OS:** planea la producción contra `termino_fuente@1`.
-- **Zumaya-AI:** proyecto de la instalación (búnker, blindajes y estructura). Toma de aquí el
-  modelo y el MC.
-- **RadShieldMx:** cálculo analítico de blindajes y ventilación; usa `flujo_aire@1` y debe
-  validarse contra estos MC.
+## Hoja de ruta
 
-## Pendientes
-
-- Terminar el MC F90 (19 lotes) y correr la variante TD-250 bajo en hidrógeno.
-- Suavizar el mapa de importancia (cociente ≤ 4 entre celdas vecinas) y agregar puntos de
-  control por lote antes de la siguiente campaña.
-- Documentos IBA por integrar: reporte de blindaje MC, plano de puertos con blancos asignados y
-  datos de las puertas blindadas. Van en `machines/iba_kiube/fuentes/` y se citan en `params.yaml`.
+1. Cerrar el MC F90 y actualizar los contratos.
+2. Variante con TD-250 bajo en hidrógeno cuando llegue su composición.
+3. Simuladores con la misma infraestructura para linac, PET/CT, HDR y Gamma Knife.
 
 ## Ecosistema GAMMA
 
